@@ -1,0 +1,1114 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RAB MRD</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#d62e2a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="RAB MRD">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#f4f2ee; --panel:#fff; --ink:#1a1a1a; --muted:#6b6862; --line:#ddd9d2;
+  --accent:#b8452f; --plus:#2f6d4f; --minus:#b8452f; --warn:#fff2cc; --soft:#f7f5f1;
+  --head:#1f3864; --ok:#eef5f0;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#15171a; --panel:#1d2024; --ink:#eceae6; --muted:#9a968f; --line:#32363c;
+  --accent:#e2795f; --plus:#7fbfa0; --minus:#e2795f; --warn:#3a3523; --soft:#22262b;
+  --head:#223355; --ok:#1e2a24;}}
+:root[data-theme="dark"]{--bg:#15171a;--panel:#1d2024;--ink:#eceae6;--muted:#9a968f;--line:#32363c;
+  --accent:#e2795f;--plus:#7fbfa0;--minus:#e2795f;--warn:#3a3523;--soft:#22262b;--head:#223355;--ok:#1e2a24;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+.wrap{max-width:1240px;margin:0 auto;padding:14px}
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;
+  padding:13px 15px;background:var(--panel);border:1px solid var(--line);border-radius:10px;margin-bottom:12px}
+.brand{font-size:20px;font-weight:800;letter-spacing:-.02em}
+.brand span{color:var(--accent)}
+.sub{color:var(--muted);font-size:12px}
+button,select,input{font:inherit;color:inherit}
+button{background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:6px 11px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.mini{padding:2px 7px;font-size:12px;border-radius:5px}
+select,input{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:5px 7px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;margin-bottom:12px;overflow:hidden}
+.card>h2{margin:0;font-size:14px;padding:10px 14px;border-bottom:1px solid var(--line);
+  display:flex;justify-content:space-between;align-items:center;gap:8px}
+.card .body{padding:12px 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px 14px}
+.f{display:flex;flex-direction:column;gap:3px}.f label{font-size:11.5px;color:var(--muted)}
+.f input{width:100%}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+thead th{position:sticky;top:0;z-index:4;background:var(--head);color:#fff;padding:8px 6px;
+  text-align:left;font-size:11.5px;font-weight:700}
+tbody td{border-bottom:1px solid var(--line);padding:5px 6px;vertical-align:top}
+tr.bab>td{background:var(--warn);font-weight:800}
+tr.sub>td{font-weight:700}
+tr.item:hover>td{background:var(--soft)}
+td.num,th.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+td.c,th.c{text-align:center}
+.nm{font-weight:600}
+.rumus{display:block;font-size:10.5px;color:var(--muted);margin-top:2px;line-height:1.55}
+.rumus b{color:var(--plus);font-weight:800}
+.rumus i{color:var(--minus);font-style:normal;font-weight:800}
+input.hrg{width:108px;text-align:right}
+.fx{cursor:pointer;color:var(--accent);font-weight:700;font-size:11px;border:1px solid var(--line);
+  border-radius:5px;padding:1px 6px;background:transparent}
+tr.edit>td{background:var(--ok);padding:10px 8px 12px}
+.ur{width:100%;font-size:12px}
+.ur th{position:static;background:transparent;color:var(--muted);font-size:10.5px;
+  font-weight:600;padding:2px 4px;border-bottom:1px solid var(--line)}
+.ur td{border:none;padding:3px 4px}
+.ur input[type=text]{width:100%;min-width:90px}
+.ur input.d{width:76px;text-align:right}
+.ur select{max-width:160px;font-size:11.5px}
+.sgn{width:30px;font-weight:800;text-align:center;border-radius:5px;cursor:pointer;
+  border:1px solid var(--line);background:var(--panel);padding:4px 0}
+.sgn.p{color:var(--plus)} .sgn.m{color:var(--minus)}
+.hasil{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+.tablewrap{max-height:74vh;overflow:auto}
+.foot{position:sticky;bottom:0;background:var(--panel);border-top:2px solid var(--head);
+  padding:10px 14px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.tot{font-size:16px;font-weight:800}
+.terbilang{font-style:italic;color:var(--muted);padding:8px 14px 14px}
+.note{font-size:12px;color:var(--muted);padding:0 14px 12px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;background:var(--head);color:#fff;
+  padding:9px 16px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:99}
+.toast.on{opacity:1}
+.babbar{display:inline-flex;gap:5px}
+
+.cetakOnly{display:none}
+@media print{
+  .cetakOnly{display:block;margin-top:26px;page-break-inside:avoid}
+  .cetakOnly table{width:100%;border:none}
+  .cetakOnly td{border:none;text-align:center;padding:4px;font-size:12px}
+  .cetakOnly .nm2{height:58px}
+  body{background:#fff} header .row,.foot,.noprint,.card.ident,.fx{display:none!important}
+  .tablewrap{max-height:none;overflow:visible} .card{border:none}
+  thead th{background:#1f3864!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  tr.bab>td{background:#eee!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  tr.edit{display:none} input{border:none!important;background:transparent!important;padding:0!important}
+}
+@media (max-width:640px){.wrap{padding:9px}.brand{font-size:17px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div style="display:flex;align-items:center;gap:11px">
+   <img src="logo.png" alt="" style="height:42px;width:auto" onerror="this.style.display='none'">
+   <div>
+    <div class="brand">RAB <span>MRD</span></div>
+    <div class="sub">Penyusun Rencana Anggaran Biaya — uraian volume per pekerjaan
+      · <span id="versiApp"></span></div>
+   </div>
+  </div>
+  <div class="row noprint" style="display:flex;gap:7px;flex-wrap:wrap">
+    <select id="proyek" title="Pilih proyek"></select>
+    <button id="bBaru">+ Proyek</button>
+    <button id="bKosong">+ Kosong</button>
+    <button id="bSalin">Duplikat</button>
+    <button id="bHapus">Hapus</button>
+    <button id="bEks">⬇ Cadangan</button>
+    <button id="bImp">⬆ Pulihkan</button>
+    <input type="file" id="fImp" accept=".json" hidden>
+  </div>
+</header>
+
+<div class="card ident">
+  <h2>Identitas Proyek</h2>
+  <div class="body"><div class="grid" id="gIdent"></div></div>
+</div>
+
+<div class="card" id="cAcuan">
+  <h2><span>Daftar Angka Acuan &nbsp;<span style="font-weight:400;color:var(--muted);font-size:12px">— diambil dari denah</span></span>
+      <span class="noprint"><button class="mini" id="bAcAdd">+ Acuan</button></span></h2>
+  <div class="body">
+    <table><thead><tr>
+      <th style="width:110px">Kelompok</th><th>Nama acuan</th>
+      <th class="num" style="width:120px">nilai</th><th class="c" style="width:60px">sat</th>
+      <th class="c" style="width:70px" title="Berapa baris RAB yang memakai angka ini">dipakai</th>
+      <th class="c noprint" style="width:40px"></th>
+    </tr></thead><tbody id="tbAc"></tbody></table>
+    <div class="note" style="padding:10px 0 0">
+      Angka dari denah diketik <b>sekali di sini</b>, lalu dipilih di kolom <b>Acuan</b> pada uraian volume.
+      Ubah satu angka — semua pekerjaan yang memakainya ikut berubah.<br>
+      Kolom <b>dipakai</b> = berapa baris RAB yang memakai angka ini. Tertulis <b>4×</b> berarti sekali
+      Bapak ubah, empat pekerjaan ikut berubah — sekaligus pengaman agar tidak terhapus sembarangan.<br>
+      Kelompok <b>PENGURANGAN</b> bawaannya <b>0</b>, jadi hitungan awal memakai luas penuh.
+      Isi panjang dinding luar yang dempet tetangga atau tidak difinishing —
+      plesteran, acian, cat exterior, dan aquaproof langsung berkurang sendiri.
+      Dipisah per lantai supaya bisa menangani tetangga yang hanya setinggi lantai 1.
+    </div>
+  </div>
+</div>
+
+<div class="card" id="cAtap">
+  <h2><span>Perhitungan Luas Atap &nbsp;<span style="font-weight:400;color:var(--muted);font-size:12px">— luas datar ÷ cos sudut</span></span>
+      <span class="noprint"><button class="mini" id="bAtapAdd">+ Bidang</button></span></h2>
+  <div class="body">
+    <table><thead><tr>
+      <th>Nama bidang</th><th class="num" style="width:96px">panjang</th>
+      <th class="num" style="width:96px">lebar</th><th class="num" style="width:86px">sudut °</th>
+      <th class="num" style="width:104px">luas datar</th><th class="num" style="width:82px">faktor</th>
+      <th class="num" style="width:116px">luas atap</th><th class="c noprint" style="width:40px"></th>
+    </tr></thead><tbody id="tbAtap"></tbody>
+    <tfoot><tr class="sub"><td colspan="6" style="text-align:right;font-weight:800">TOTAL LUAS ATAP</td>
+      <td class="num" style="font-weight:800" id="atapTotal"></td><td class="noprint"></td></tr></tfoot></table>
+    <div class="note" style="padding:10px 0 0">
+      Isi panjang × lebar <b>proyeksi datar</b> (seperti di denah) dan sudut kemiringannya.
+      Luas atap miring = luas datar ÷ cos sudut. Atap 10 × 10 dengan kemiringan 35° →
+      100 ÷ cos 35° = <b>122,08 m²</b>. Sudut 0° berarti datar (faktor 1).
+      Totalnya langsung mengisi acuan <b>Luas Atap</b> yang dipakai rangka gording dan penutup atap.
+    </div>
+  </div>
+</div>
+
+<div class="card" id="cUkuran">
+  <h2><span>Daftar Ukuran</span>
+      <span class="noprint"><button class="mini" id="bUkAdd">+ Ukuran</button></span></h2>
+  <div class="body">
+    <table><thead><tr>
+      <th style="width:110px">Kelompok</th><th>Nama ukuran</th><th class="num" style="width:104px">lebar</th>
+      <th class="num" style="width:104px">tinggi</th><th class="c" style="width:96px">ditulis</th>
+      <th class="c" style="width:70px">dipakai</th><th class="c noprint" style="width:40px"></th>
+    </tr></thead><tbody id="tbUk"></tbody></table>
+    <div class="note" style="padding:10px 0 0">
+      Kolom <b>dipakai</b> = berapa baris RAB yang memakai ukuran ini.
+      Ubah di sini saja — nama pekerjaan dan volumenya ikut berubah sendiri.
+      Boleh ditulis <b>20cm</b> atau <b>0,2</b>. <b>Lebar boleh dikosongkan</b> kalau yang dipakai
+      hanya tingginya, seperti tinggi dinding. Tambah baris untuk ukuran baru,
+      lalu pilih di kolom <b>Ukuran</b> pada uraian volume.
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>
+    <span>Rencana Anggaran Biaya</span>
+    <span class="noprint"><button class="mini" id="bTambahBab">+ Bab</button></span>
+  </h2>
+  <div class="tablewrap">
+    <table id="tabel">
+      <thead><tr>
+        <th style="width:34px">No</th>
+        <th>Jenis Pekerjaan &amp; Uraian Volume</th>
+        <th class="num" style="width:92px">Volume</th>
+        <th class="c" style="width:48px">Sat</th>
+        <th class="num" style="width:118px">Harga (Rp)</th>
+        <th class="num" style="width:126px">Jumlah (Rp)</th>
+        <th class="c noprint" style="width:74px"></th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <div class="foot">
+    <div class="noprint" style="display:flex;gap:7px;flex-wrap:wrap;align-items:center">
+      <button class="primary" id="bXls">⬇ Unduh Excel</button>
+      <button id="bCopy">⧉ Salin ke Excel</button>
+      <button id="bPrint">🖨 Cetak</button>
+      <label style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px">
+        <input type="checkbox" id="cbUraian" checked style="width:auto"> sertakan uraian volume
+      </label>
+      <label style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px">
+        <input type="checkbox" id="cbNol" checked style="width:auto"> sembunyikan baris bervolume 0
+      </label>
+    </div>
+    <div class="tot">TOTAL &nbsp;<span id="grand">Rp 0</span></div>
+  </div>
+  <div id="peringatan" style="display:none;padding:9px 14px;background:var(--warn);
+       border-top:1px solid var(--line);font-size:12.5px;color:var(--minus)"></div>
+  <div class="terbilang" id="terbilang"></div>
+</div>
+
+<div class="card">
+  <h2>Rekapitulasi</h2>
+  <div class="body"><table><tbody id="rekap"></tbody></table></div>
+  <div class="note">
+    Klik <b style="color:var(--accent)">fx</b> pada baris mana pun untuk membuka uraian volumenya.
+    Tiap uraian ditandai <b style="color:var(--plus)">+</b> (menambah) atau
+    <b style="color:var(--minus)">−</b> (mengurangi), lalu diisi <b>n × p × l × t</b> —
+    kolom yang dikosongkan diabaikan. Kolom <b>Ambil dari</b> memakai volume pekerjaan lain sebagai
+    dasar, jadi kalau dasarnya berubah baris ini ikut berubah sendiri.
+  </div>
+</div>
+
+<div class="cetakOnly" id="ttd"></div>
+
+<div class="note" style="text-align:center;padding-bottom:26px">
+  Data tersimpan di peramban perangkat ini. Tekan <b>Cadangan</b> berkala untuk menyimpan berkas JSON.
+</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =================== CETAKAN AWAL (kost 2 lantai) ===================
+   item: [nama, satuan, harga, [ [uraian, tanda(+1/-1), n, p, l, t, "BAB/idx" ] ... ] ] */
+const T = [
+['I','PEK. PERSIAPAN',[
+  ['Pengukuran, Bowplank & Persiapan','ls',1000000,[['lump sum',1,1,'','','']]],
+]],
+['II','PEK. TANAH',[
+  ['Pek. Galian Tanah','m³',150000,[['galian plat sepatu',1,16,0.80,0.80,0.50]]],
+  ['Urugan Sirtu t=10 cm','m³',175000,[['luas lantai dasar × tebal',1,1,'','',0.10,'','','A8']]],
+  ['Bor Strauss Ø30','m¹',70000,[
+     ['kelompok 1 — jumlah titik × kedalaman',1,16,3.50,'',''],
+     ['kelompok 2 — tambah baris bila kedalaman beda',1,'','','',''],
+     ['kelompok 3 — tambah baris bila kedalaman beda',1,'','','','']]],
+]],
+['III','PEK. STRUKTUR BETON',[
+  ['Pek. Beton Strauss Ø30','m³',3000000,[
+     ['total m¹ bor × luas penampang',1,1,'','','','II/2','','A15']]],
+  ['Pek. Beton Plat Sepatu Tipe 1','m³',3750000,[
+     ['jumlah titik × panjang × lebar × tebal',1,16,0.60,0.60,0.25]]],
+  ['Pek. Beton Plat Sepatu Tipe 2','m³',3750000,[
+     ['jumlah titik × panjang × lebar × tebal',1,0,0.50,0.50,0.25]]],
+  ['Pek. Beton Plat Sepatu Tipe 3','m³',3750000,[
+     ['jumlah titik × panjang × lebar × tebal',1,0,0.80,0.80,0.30]]],
+  ['Pek. Beton Sloof MEMANJANG {ukuran}','m³',3750000,[
+     ['panjang × lebar × tinggi',1,1,'','','','','U1','A4']]],
+  ['Pek. Beton Sloof MELEBAR {ukuran}','m³',3750000,[
+     ['panjang × lebar × tinggi',1,1,'','','','','U2','A5']]],
+  ['Pek. Beton Sloof Tambahan {ukuran}','m³',3750000,[
+     ['panjang × lebar × tinggi',1,1,'','','','','U17','A19']]],
+  ['Pek. Beton Kolom Tipe 1 {ukuran} (K1)','m³',4000000,[
+     ['jumlah titik × panjang kolom × penampang',1,16,'','','','','U3','A7']]],
+  ['Pek. Beton Kolom Tipe 2 {ukuran} (K2)','m³',3750000,[
+     ['jumlah titik × panjang kolom × penampang',1,12,'','','','','U4','A21']]],
+  ['Pek. Beton Kolom Tipe 3 {ukuran} (KP)','m³',3000000,[
+     ['jumlah titik × panjang kolom × penampang',1,14,'','','','','U5','A22']]],
+  ['Pek. Beton Kolom Tipe 4 {ukuran}','m³',4000000,[
+     ['jumlah titik × panjang kolom × penampang',1,0,'','','','','U18','A23']]],
+  ['Pek. Beton Balok Lt.2 Tipe 1 {ukuran}','m³',4500000,[
+     ['panjang × lebar × tinggi penuh',1,1,'','','','','U6','A6'],
+     ['kurangi setebal dak (masuk volume dak)',-1,1,'','','','','U6','A6','U16']]],
+  ['Pek. Beton Balok Lt.2 Tipe 2 {ukuran}','m³',4500000,[
+     ['panjang × lebar × tinggi penuh',1,1,'','','','','U14','A17'],
+     ['kurangi setebal dak (masuk volume dak)',-1,1,'','','','','U14','A17','U16']]],
+  ['Pek. Beton Balok Lt.2 Tipe 3 {ukuran}','m³',4500000,[
+     ['panjang × lebar × tinggi penuh',1,1,'','','','','U15','A18'],
+     ['kurangi setebal dak (masuk volume dak)',-1,1,'','','','','U15','A18','U16']]],
+  ['Pek. Beton Balok Lt.2 Tipe 4 {ukuran}','m³',4500000,[
+     ['panjang × lebar × tinggi penuh',1,1,'','','','','U19','A20'],
+     ['kurangi setebal dak (masuk volume dak)',-1,1,'','','','','U19','A20','U16']]],
+  ['Pek. Beton Dak Lantai 2 (tebal {ukuran})','m³',4500000,[
+     ['luas pelat × tebal dak',1,1,'','','','','U16','A9']]],
+  ['Pek. Beton Pelat Talang (lebar {ukuran} × tebal {ukuran2})','m³',4500000,[
+     ['panjang × lebar × tebal',1,1,'','','','','U24','A25','U21']]],
+  ['Pek. Beton Balok Talang Tipe 1 {ukuran}','m³',4500000,[
+     ['panjang × lebar × tinggi penuh',1,1,'','','','','U22','A26'],
+     ['kurangi setebal pelat talang',-1,1,'','','','','U22','A26','U21']]],
+  ['Pek. Beton Balok Talang Tipe 2 {ukuran}','m³',4500000,[
+     ['panjang × lebar × tinggi penuh',1,1,'','','','','U23','A27'],
+     ['kurangi setebal pelat talang',-1,1,'','','','','U23','A27','U21']]],
+  ['Pek. Beton Tangga','m³',4500000,[['pelat miring + anak tangga',1,1,1.67,'','']]],
+  ['Pek. Beton Ring Balok {ukuran}','m³',3000000,[
+     ['keliling × lebar × tinggi',1,1,'','','','','U7','A1']]],
+]],
+['IV','PEK. PASANGAN DINDING BATA',[
+  ['Pasangan Bata Ringan (Hebel)','m²',125000,[
+     ['dinding lantai 1',1,1,'','','','','U8','A2'],
+     ['dinding lantai 2',1,1,'','','','','U9','A3'],
+     ['pintu kamar',-1,10,'','','','','U11'],
+     ['pintu kamar mandi',-1,10,'','','','','U12'],
+     ['jendela',-1,10,'','','','','U13']]],
+  ['Plesteran','m²',65000,[
+     ['luas pasangan bata × 2 sisi',1,2,'','','','IV/0'],
+     ['PENGURANGAN sisi luar tanpa finishing — lt.1',-1,1,'','','','','U8','A13'],
+     ['PENGURANGAN sisi luar tanpa finishing — lt.2',-1,1,'','','','','U9','A14']]],
+  ['Acian','m²',15000,[['sama dengan plesteran',1,1,'','','','IV/1']]],
+  ['Benangan','m¹',30000,[['keliling 30 bukaan',1,1,143.60,'',''],['sudut dinding',1,1,120.00,'','']]],
+]],
+['V','PEK. ATAP & PLAFON',[
+  ['Pas. Rangka Gording Galvalum C 0,75','m²',150000,[['luas bidang atap',1,1,'','','','','','A10']]],
+  ['Pas. Atap uPVC Single Layer','m²',120000,[['mengikuti luas rangka',1,1,'','','','V/0']]],
+  ['Pas. Plafon Gypsum (hanya kamar)','m²',100000,[
+     ['kamar 4,00 × 3,40',1,4,4.00,3.40,''],
+     ['kamar 4,00 × 3,30',1,6,4.00,3.30,'']]],
+  ['Pas. List Shadow Line','m¹',0,[]],
+  ['Pas. Lisplank Kalsiboard','m¹',75000,[]],
+]],
+['VI','PEK. KERAMIK LANTAI & DINDING',[
+  ['Pek. Rabat Beton Lantai 1','m²',20000,[['seluruh tapak',1,1,'','','','','','A8']]],
+  ['Pek. Keramik Lantai','m²',200000,[
+     ['lantai kamar (= luas plafon)',1,1,'','','','V/2'],
+     ['teras / selasar / balkon',1,1,'','','','','','A12']]],
+  ['Pek. Plint Lantai','m¹',30000,[]],
+  ['Pek. Keramik Tangga','m²',325000,[['anak tangga + bordes',1,1,12.14,'','']]],
+  ['Pek. Keramik Dinding KM t=1,80 m','m²',240000,[['KM × keliling 5,20 m × tinggi keramik',1,10,5.20,'','','','U10']]],
+]],
+['VII','PEK. KUSEN / PINTU / JENDELA',[
+  ['Kusen Pintu & Jendela Aluminium','m¹',100000,[
+     ['kusen pintu 0,89 + 2×2,14',1,10,5.17,'',''],
+     ['kusen jendela 2×(0,50+1,00)',1,10,3.00,'','']]],
+  ['Daun Jendela Casement + Kaca 5 mm','bh',900000,[['jumlah jendela',1,10,'','','']]],
+  ['Daun Pintu Angzdoor + Setel','bh',800000,[['jumlah kamar',1,10,'','','']]],
+  ['Pintu PVC Kamar Mandi','bh',400000,[['jumlah KM',1,10,'','','']]],
+  ['Engsel Pintu Stainless 4"','set',70000,[['jumlah pintu kamar',1,10,'','','']]],
+  ['Kunci Pintu','bh',200000,[['jumlah pintu kamar',1,10,'','','']]],
+]],
+['VIII','PEK. CAT & PELAPIS DINDING',[
+  ['Pengecatan Dinding INTERIOR (dalam)','m²',30000,[
+     ['seluruh plesteran 2 sisi',1,1,'','','','IV/1'],
+     ['dikurangi bidang cat exterior',-1,1,'','','','VIII/1'],
+     ['dikurangi bidang aquaproof',-1,1,'','','','VIII/3']]],
+  ['Pengecatan Dinding EXTERIOR (luar)','m²',30000,[
+     ['keliling dinding luar × tinggi lantai 1',1,1,'','','','','U8','A1'],
+     ['keliling dinding luar × tinggi lantai 2',1,1,'','','','','U9','A1'],
+     ['PENGURANGAN sisi luar tanpa finishing — lt.1',-1,1,'','','','','U8','A13'],
+     ['PENGURANGAN sisi luar tanpa finishing — lt.2',-1,1,'','','','','U9','A14'],
+     ['dikurangi bidang aquaproof',-1,1,'','','','VIII/3']]],
+  ['Pengecatan Plafon','m²',30000,[['= luas plafon',1,1,'','','','V/2']]],
+  ['Aquaproof Dinding Luar','m²',40000,[
+     ['bidang kena hujan — keliling × tinggi lantai 2',1,1,'','','','','U9','A1'],
+     ['PENGURANGAN sisi luar tanpa finishing — lt.2',-1,1,'','','','','U9','A14']]],
+]],
+['IX','PEK. SANITASI AIR KOTOR / BERSIH',[
+  ['Pipa Air Bersih 3/4"','m¹',35000,[['perkiraan jalur',1,1,95.00,'','']]],
+  ['Pipa Air Kotor 2½" (talang)','m¹',50000,[['perkiraan jalur',1,1,45.00,'','']]],
+  ['Pipa Air Kotor 3"','m¹',65000,[['perkiraan jalur',1,1,50.00,'','']]],
+  ['Pipa Air Kotor 4"','m¹',75000,[['perkiraan jalur',1,1,25.00,'','']]],
+  ['Kloset Duduk','bh',700000,[['1 per KM',1,10,'','','']]],
+  ['Kran Kamar Mandi','bh',75000,[['1 per KM',1,10,'','','']]],
+  ['Avur Lantai KM','set',15000,[['1 per KM',1,10,'','','']]],
+  ['Bak Kontrol','bh',75000,[['',1,12,'','','']]],
+  ['Septictank + Resapan','bh',3500000,[['',1,1,'','','']]],
+  ['Tandon Bawah','bh',3500000,[['jumlah unit',1,'','','','']]],
+  ['Tandon Atas + Instalasi','bh',3750000,[['jumlah unit',1,'','','','']]],
+]],
+['X','PEK. INSTALASI LISTRIK',[
+  ['Inst. Titik Lampu (tanpa lampu)','ttk',225000,[
+     ['kamar',1,10,'','',''],['kamar mandi',1,10,'','',''],['area umum',1,8,'','','']]],
+  ['Inst. Titik Stop Kontak','ttk',250000,[['2 per kamar',1,10,2,'','']]],
+  ['Inst. Stop Kontak AC + Pembuangan','ttk',350000,[['1 per kamar',1,10,'','','']]],
+  ['Inst. Box MCB Lantai 1','box',750000,[['',1,1,'','','']]],
+  ['Inst. Box MCB Lantai 2','box',600000,[['',1,1,'','','']]],
+  ['Instalasi Kabel Power Meteran ke Box MCB','ttk',300000,[['meteran sendiri tiap kamar',1,10,'','','']]],
+  ['Instalasi Grounding Panel','ttk',600000,[['',1,1,'','','']]],
+]],
+['XI','PEK. FINISHING',[
+  ['Meja Dapur Finish + Dinding 60 cm','m¹',800000,[]],
+  ['Pompa Air','bh',0,[]],
+  ['Reling Tangga + Balkon','m¹',500000,[]],
+  ['Pembersihan Akhir + Buang Gragal','ls',3500000,[['lump sum',1,1,'','','']]],
+]],
+['XII','PEK. TAMBAHAN',[
+  ['Bongkar Bangunan Lama','ls',10000000,[]],
+  ['Urugan Gragal 60–80 cm','m³',0,[]],
+]],
+];
+
+/* =================== DAFTAR UKURAN BAWAAN =================== */
+const UK_DEF=[
+  ['U1','Struktur','Sloof Memanjang',0.15,0.40],
+  ['U2','Struktur','Sloof Melebar',0.15,0.35],
+  ['U17','Struktur','Sloof Tambahan (Tipe 3)',0.15,0.30],
+  ['U3','Struktur','Kolom Tipe 1 (K1)',0.10,0.35],
+  ['U4','Struktur','Kolom Tipe 2 (K2)',0.10,0.25],
+  ['U5','Struktur','Kolom Tipe 3 (KP)',0.10,0.15],
+  ['U18','Struktur','Kolom Tipe 4',0.12,0.40],
+  ['U6','Struktur','Balok Lt.2 Tipe 1',0.12,0.35],
+  ['U14','Struktur','Balok Lt.2 Tipe 2',0.12,0.30],
+  ['U15','Struktur','Balok Lt.2 Tipe 3',0.10,0.25],
+  ['U19','Struktur','Balok Lt.2 Tipe 4',0.15,0.40],
+  ['U16','Struktur','Tebal Dak Lantai 2','',0.10],
+  ['U7','Struktur','Ring Balok',0.10,0.15],
+  ['U24','Talang','Lebar Pelat Talang Beton',0.60,''],
+  ['U21','Talang','Tebal Pelat Talang Beton','',0.10],
+  ['U22','Talang','Balok Talang Tipe 1',0.15,0.30],
+  ['U23','Talang','Balok Talang Tipe 2',0.12,0.25],
+  ['U8','Dinding','Tinggi Dinding Lantai 1','',3.00],
+  ['U9','Dinding','Tinggi Dinding Lantai 2','',3.30],
+  ['U10','Dinding','Tinggi Keramik Dinding KM','',1.80],
+  ['U11','Bukaan','Pintu Kamar',0.89,2.14],
+  ['U12','Bukaan','Pintu Kamar Mandi',0.65,2.00],
+  ['U13','Bukaan','Jendela',0.50,1.00],
+];
+const GRUP=['Struktur','Talang','Dinding','Bukaan','Lainnya'];
+/* angka yang diambil langsung dari denah — diketik sekali, dipakai di mana-mana */
+const AC_DEF=[
+  ['A1','Panjang','Keliling dinding LUAR saja (tepi bangunan)',40.00,'m¹'],
+  ['A2','Panjang','Panjang SELURUH dinding lantai 1 (luar + sekat)',86.80,'m¹','','U8'],
+  ['A3','Panjang','Panjang SELURUH dinding lantai 2 (luar + sekat)',91.60,'m¹','','U9'],
+  ['A4','Panjang','Panjang Sloof MEMANJANG',40.00,'m¹','','U1'],
+  ['A5','Panjang','Panjang Sloof MELEBAR',40.00,'m¹','','U2'],
+  ['A19','Panjang','Panjang Sloof Tambahan (Tipe 3)',0,'m¹','','U17'],
+  ['A7','Panjang','Panjang Kolom Tipe 1',7.00,'m¹','','U3'],
+  ['A21','Panjang','Panjang Kolom Tipe 2',7.00,'m¹','','U4'],
+  ['A22','Panjang','Panjang Kolom Tipe 3',7.00,'m¹','','U5'],
+  ['A23','Panjang','Panjang Kolom Tipe 4',0,'m¹','','U18'],
+  ['A6','Panjang','Panjang Balok Lt.2 Tipe 1',80.00,'m¹','','U6'],
+  ['A17','Panjang','Panjang Balok Lt.2 Tipe 2',0,'m¹','','U14'],
+  ['A18','Panjang','Panjang Balok Lt.2 Tipe 3',0,'m¹','','U15'],
+  ['A20','Panjang','Panjang Balok Lt.2 Tipe 4',0,'m¹','','U19'],
+  ['A25','Talang','Panjang Pelat Talang Beton',0,'m¹','','U24'],
+  ['A26','Talang','Panjang Balok Talang Tipe 1',0,'m¹','','U22'],
+  ['A27','Talang','Panjang Balok Talang Tipe 2',0,'m¹','','U23'],
+  ['A8','Luas','Luas Tapak / Lantai Dasar',100.00,'m²'],
+  ['A9','Luas','Luas Pelat Lantai 2',95.20,'m²'],
+  ['A10','Luas','Luas Atap (dari tabel Atap)',0,'m²','atap'],
+  ['A11','Luas','Luas Kamar (seluruhnya)',133.60,'m²'],
+  ['A12','Luas','Luas Teras / Selasar / Balkon',31.20,'m²'],
+  ['A15','Luas','Luas Penampang Strauss Ø30 (π × 0,15²)',0.0707,'m²'],
+  ['A13','Pengurangan','Dinding Luar Tanpa Finishing — Lantai 1',0,'m¹','','U8'],
+  ['A14','Pengurangan','Dinding Luar Tanpa Finishing — Lantai 2',0,'m¹','','U9'],
+];
+const GRUPAC=['Panjang','Luas','Talang','Pengurangan','Lainnya'];
+const acuanDefault=()=>AC_DEF.map(([id,grup,nama,v,sat,auto,uk])=>({id,grup,nama,v,sat,auto:auto||'',uk:uk||''}));
+const atapDefault=()=>[{id:'T1',nama:'Bidang atap utama',p:10,l:10,deg:35}];
+const sudutOk=d=>{d=Number(d); return isFinite(d)&&d>=0&&d<85;};
+const faktorMiring=d=>sudutOk(d)? 1/Math.cos(Number(d)*Math.PI/180) : 0;
+const luasBidang=b=>(Number(b.p)||0)*(Number(b.l)||0)*faktorMiring(b.deg);
+const luasAtapTotal=()=>(P().atap||[]).reduce((a,b)=>a+luasBidang(b),0);
+const nilaiAc=a=>(a&&a.auto==='atap')? luasAtapTotal() : (a? a.v : '');
+const acById=id=>(P().acuan||[]).find(a=>a.id===id);
+const ukuranDefault=()=>UK_DEF.map(([id,grup,nama,b,h])=>({id,grup,nama,b,h}));
+const ukById=id=>(P().ukuran||[]).find(u=>u.id===id);
+const cm=v=>(v===''||v==null)?'' : (Math.round(Number(v)*1000)/10).toLocaleString('id-ID',{maximumFractionDigits:1});
+const labelUk=u=>{
+  if(!u) return '';
+  const adaB=!(u.b===''||u.b==null), adaH=!(u.h===''||u.h==null);
+  if(adaB&&adaH) return cm(u.b)+'/'+cm(u.h);
+  if(adaH) return Number(u.h).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})+' m';
+  if(adaB) return Number(u.b).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})+' m';
+  return '—';};
+
+/* =================== STATE =================== */
+const LS='rab_mrd_v23'; let DB={aktif:null,proyek:{}}; let SEQ=0;
+const uid=p=>(p||'x')+(++SEQ).toString(36)+Date.now().toString(36).slice(-4);
+
+function dariTemplate(){
+  const bab=T.map(([kode,judul,items])=>({id:uid('b'),kode,judul,
+    items:items.map(([nama,sat,harga,komp])=>({id:uid('i'),nama,sat,harga,volManual:'',
+      komp:komp.map(k=>({ket:k[0],s:k[1],n:k[2],p:k[3],l:k[4],t:k[5],
+        ref:k[6]||'',uk:k[7]||'',ac:k[8]||'',uk2:k[9]||''}))}))}));
+  const peta={}; bab.forEach(b=>b.items.forEach((it,i)=>peta[b.kode+'/'+i]=it.id));
+  bab.forEach(b=>b.items.forEach(it=>it.komp.forEach(k=>{if(k.ref)k.ref=peta[k.ref]||'';})));
+  return bab;
+}
+function proyekBaru(nama,kosong){
+  return {nama:nama||'Proyek Baru',
+    info:{namaProyek:nama||'Proyek Baru',lokasi:'',nomor:'',owner:'',pelaksana:'',kota:'Surabaya',
+          tanggal:new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})},
+    ukuran: ukuranDefault(), acuan: acuanDefault(), atap: atapDefault(),
+    bab: kosong? [{id:uid('b'),kode:'I',judul:'PEK. PERSIAPAN',items:[]}] : dariTemplate()};
+}
+function load(){
+  try{const r=localStorage.getItem(LS); if(r) DB=JSON.parse(r);}catch(e){}
+  if(!DB.proyek||!Object.keys(DB.proyek).length){
+    const id=uid('p'); DB={aktif:id,proyek:{[id]:proyekBaru('Kost TMA Rungkut — 10 Kamar')}};
+    DB.proyek[id].info.lokasi='Tambak Medokan Ayu, Rungkut, Surabaya';
+    DB.proyek[id].info.pelaksana='Chandra Dananjaya';
+  }
+  Object.values(DB.proyek).forEach(pr=>{
+    if(!pr.ukuran||!pr.ukuran.length) pr.ukuran=ukuranDefault();
+    if(!pr.acuan ||!pr.acuan.length ) pr.acuan =acuanDefault();
+    if(!pr.atap  ||!pr.atap.length  ) pr.atap  =atapDefault(); });
+  if(!DB.proyek[DB.aktif]) DB.aktif=Object.keys(DB.proyek)[0];
+}
+const save=()=>{try{localStorage.setItem(LS,JSON.stringify(DB));}catch(e){}};
+const P=()=>DB.proyek[DB.aktif];
+
+/* =================== HITUNG =================== */
+const nz=v=>(v===''||v===null||v===undefined||isNaN(v))?null:Number(v);
+/* terima "0,2"  "20cm"  "40 cm"  "10m"  "3.750.000" */
+function num(x,harga){
+  if(x===''||x==null) return '';
+  let s=String(x).trim().toLowerCase().replace(/\s+/g,'');
+  if(!s) return '';
+  let f=1;
+  if(/cm$/.test(s)){f=0.01; s=s.slice(0,-2);}
+  else if(/mm$/.test(s)){f=0.001; s=s.slice(0,-2);}
+  else if(/m$/.test(s)){s=s.slice(0,-1);}
+  if(s.includes(',')) s=s.replace(/\./g,'').replace(',','.');
+  else if(harga) s=s.replace(/\./g,'');
+  const v=parseFloat(s);
+  return isNaN(v)? '' : v*f;
+}
+const tulis=v=>(v===''||v==null)?'':String(v).replace('.',',');
+function petaItem(){const m={};P().bab.forEach(b=>b.items.forEach(it=>m[it.id]=it));return m;}
+function volSemua(){
+  const peta=petaItem(), memo={};
+  function vol(id,jejak){
+    if(memo[id]!==undefined) return memo[id];
+    const it=peta[id]; if(!it) return 0;
+    if(jejak.has(id)) return 0;                 // cegah rujukan berputar
+    jejak.add(id);
+    let v;
+    if(it.volManual!=='' && it.volManual!==undefined && it.volManual!==null) v=Number(it.volManual);
+    else v=(it.komp||[]).reduce((a,k)=>a+nilai(k,jejak),0);
+    jejak.delete(id); memo[id]=v; return v;
+  }
+  function nilai(k,jejak){
+    const u=k.uk? ukById(k.uk):null, a=k.ac? acById(k.ac):null;
+    const isiAda=v=>!(v===''||v===null||v===undefined);
+    const u2=k.uk2? ukById(k.uk2):null;
+    const Pj=(a&&isiAda(nilaiAc(a)))? nilaiAc(a) : k.p;
+    let L =(u&&isiAda(u.b))? u.b : k.l;
+    let Tg=(u&&isiAda(u.h))? u.h : k.t;
+    if(u2&&isiAda(u2.b)) L=u2.b;
+    if(u2&&isiAda(u2.h)) Tg=u2.h;
+    const f=[k.n,Pj,L,Tg].map(nz).filter(v=>v!==null);
+    let d=1, ada=false;
+    if(k.ref){ d=vol(k.ref,jejak||new Set()); ada=true; }
+    if(f.length){ f.forEach(v=>d*=v); ada=true; }
+    return ada? (k.s<0?-1:1)*d : 0;
+  }
+  const hasil={}; Object.keys(peta).forEach(id=>hasil[id]=vol(id,new Set()));
+  return {vol:hasil, nilai:(k)=>nilai(k,new Set()), peta};
+}
+function hitung(){
+  const {vol,peta}=volSemua(); let no=0;
+  return P().bab.map(b=>{
+    const items=b.items.map(it=>{
+      const v=vol[it.id]||0, h=Number(it.harga)||0;
+      return {ref:it,no:++no,vol:v,hrg:h,jml:v*h,
+        manual:(it.volManual!==''&&it.volManual!=null),
+        rumus:(it.komp||[]).map(k=>{
+          const u=k.uk? ukById(k.uk):null, a=k.ac? acById(k.ac):null, u2=k.uk2? ukById(k.uk2):null;
+          const ok=v=>!(v===''||v===null||v===undefined);
+          let LL=(u&&ok(u.b))?u.b:k.l, TT=(u&&ok(u.h))?u.h:k.t;
+          if(u2&&ok(u2.b)) LL=u2.b;
+          if(u2&&ok(u2.h)) TT=u2.h;
+          const f=[k.n,((a&&ok(nilaiAc(a)))?nilaiAc(a):k.p),LL,TT]
+                  .map(nz).filter(x=>x!==null)
+                  .map(x=>x.toLocaleString('id-ID',{maximumFractionDigits:4}));
+          const d=k.ref? ('['+((peta[k.ref]||{}).nama||'?')+']') : '';
+          const tag=[a?a.nama:'',u?`${u.nama} ${labelUk(u)}`:'',
+                     u2?`ganti → ${u2.nama} ${labelUk(u2)}`:''].filter(Boolean).join(' · ');
+          const isi=[d].concat(f).filter(Boolean).join(' × ')+(tag?` <span style="opacity:.72">[${tag}]</span>`:'');
+          const tg=k.s<0?'i':'b';
+          return `<${tg}>${k.s<0?'−':'+'}</${tg}> ${isi}${k.ket?' <span style="opacity:.72">('+k.ket+')</span>':''}`;
+        }).join('<br>')};
+    });
+    return {ref:b,kode:b.kode,judul:b.judul,items,sub:items.reduce((a,x)=>a+x.jml,0)};
+  });
+}
+
+/* =================== FORMAT =================== */
+const fmtRp=n=>'Rp '+Math.round(n||0).toLocaleString('id-ID');
+const fmtV =n=>(!n)?'—':Number(n).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2});
+const s1=['','Satu','Dua','Tiga','Empat','Lima','Enam','Tujuh','Delapan','Sembilan','Sepuluh','Sebelas'];
+function terbilang(n){n=Math.floor(Math.abs(n));
+  if(n<12)return s1[n];
+  if(n<20)return terbilang(n-10)+' Belas';
+  if(n<100)return terbilang(Math.floor(n/10))+' Puluh '+terbilang(n%10);
+  if(n<200)return 'Seratus '+terbilang(n-100);
+  if(n<1000)return terbilang(Math.floor(n/100))+' Ratus '+terbilang(n%100);
+  if(n<2000)return 'Seribu '+terbilang(n-1000);
+  if(n<1e6)return terbilang(Math.floor(n/1000))+' Ribu '+terbilang(n%1000);
+  if(n<1e9)return terbilang(Math.floor(n/1e6))+' Juta '+terbilang(n%1e6);
+  return terbilang(Math.floor(n/1e9))+' Miliar '+terbilang(n%1e9);}
+
+/* =================== RENDER =================== */
+let buka=null;
+const IDENT=[['namaProyek','Nama proyek'],['lokasi','Lokasi'],['nomor','Nomor dokumen'],
+  ['owner','Pemilik — Pihak Pertama'],['pelaksana','Pelaksana — Pihak Kedua'],
+  ['kota','Kota penandatanganan'],['tanggal','Tanggal']];
+function renderIdent(){
+  const g=document.getElementById('gIdent'); g.innerHTML='';
+  IDENT.forEach(([k,lab])=>{
+    const w=document.createElement('div'); w.className='f';
+    w.innerHTML=`<label>${lab}</label>`;
+    const i=document.createElement('input'); i.type='text'; i.value=P().info[k]||'';
+    i.addEventListener('input',()=>{P().info[k]=i.value;
+      if(k==='namaProyek'){P().nama=i.value;renderProyek();} save();});
+    w.appendChild(i); g.appendChild(w);
+  });
+}
+function opsiAc(terpilih){
+  let o=`<option value="">— ketik sendiri —</option>`;
+  GRUPAC.forEach(g=>{
+    const isi=(P().acuan||[]).filter(a=>(a.grup||'Lainnya')===g);
+    if(!isi.length) return;
+    o+=`<optgroup label="${g}">`;
+    isi.forEach(a=>{const u=a.uk? ukById(a.uk):null;
+      o+=`<option value="${a.id}"${a.id===terpilih?' selected':''}>${a.nama}${u?' '+labelUk(u):''} · ${
+      Number(nilaiAc(a)||0).toLocaleString('id-ID',{maximumFractionDigits:2})} ${a.sat||''}</option>`;});
+    o+='</optgroup>';});
+  return o;
+}
+function opsiUk2(terpilih){
+  let o=`<option value="">— tanpa pengganti —</option>`;
+  GRUP.forEach(g=>{
+    const isi=(P().ukuran||[]).filter(u=>(u.grup||'Lainnya')===g);
+    if(!isi.length) return;
+    o+=`<optgroup label="${g}">`;
+    isi.forEach(u=>{o+=`<option value="${u.id}"${u.id===terpilih?' selected':''}>ganti → ${u.nama} · ${labelUk(u)}</option>`;});
+    o+='</optgroup>';});
+  return o;
+}
+function opsiUk(terpilih){
+  let o=`<option value="">— ketik sendiri —</option>`;
+  GRUP.forEach(g=>{
+    const isi=(P().ukuran||[]).filter(u=>(u.grup||'Lainnya')===g);
+    if(!isi.length) return;
+    o+=`<optgroup label="${g}">`;
+    isi.forEach(u=>{o+=`<option value="${u.id}"${u.id===terpilih?' selected':''}>${u.nama} · ${labelUk(u)}</option>`;});
+    o+='</optgroup>';});
+  return o;
+}
+function opsiItem(kecuali,terpilih){
+  let o=`<option value="">— tidak —</option>`;
+  P().bab.forEach(b=>b.items.forEach(it=>{ if(it.id!==kecuali)
+    o+=`<option value="${it.id}"${it.id===terpilih?' selected':''}>${b.kode} · ${it.nama}</option>`;}));
+  return o;
+}
+function barisUraian(it){
+  const tr=document.createElement('tr'); tr.className='edit';
+  const td=document.createElement('td'); td.colSpan=7;
+  const V=volSemua();
+  let h=`<table class="ur"><thead><tr>
+    <th style="width:34px">±</th><th>Uraian</th><th style="width:160px">Acuan (dari denah)</th>
+    <th style="width:150px">Ukuran</th><th style="width:140px">Ambil dari</th>
+    <th class="num" style="width:62px">banyak</th><th class="num" style="width:84px">panjang</th>
+    <th class="num" style="width:84px">lebar</th><th class="num" style="width:84px">tinggi</th>
+    <th class="num" style="width:92px">hasil</th><th style="width:30px"></th></tr></thead><tbody>`;
+  (it.komp||[]).forEach((k,i)=>{
+    const v=V.nilai(k), uu=k.uk? ukById(k.uk):null, aa=k.ac? acById(k.ac):null;
+    const isi=x=>!(x===''||x===null||x===undefined);
+    const u2=k.uk2? ukById(k.uk2):null;
+    let adaB=uu&&isi(uu.b), adaH=uu&&isi(uu.h); const adaA=aa&&isi(aa.v);
+    let valB=adaB?uu.b:k.l, valH=adaH?uu.h:k.t;
+    if(u2&&isi(u2.b)){adaB=true; valB=u2.b;}
+    if(u2&&isi(u2.h)){adaH=true; valH=u2.h;}
+    h+=`<tr data-k="${i}">
+      <td><button class="sgn ${k.s<0?'m':'p'}" data-act="sgn">${k.s<0?'−':'+'}</button></td>
+      <td><input type="text" data-f="ket" value="${(k.ket||'').replace(/"/g,'&quot;')}" placeholder="keterangan"></td>
+      <td><select data-f="ac">${opsiAc(k.ac)}</select></td>
+      <td><select data-f="uk">${opsiUk(k.uk)}</select>${
+        (k.uk||k.uk2)? `<div style="margin-top:3px"><select data-f="uk2" style="max-width:160px;font-size:11px"
+          title="Ukuran pengganti — menimpa lebar/tinggi dari ukuran utama">${opsiUk2(k.uk2)}</select></div>`:''}</td>
+      <td><select data-f="ref">${opsiItem(it.id,k.ref)}</select></td>
+      <td><input class="d" type="text" inputmode="decimal" data-f="n" value="${tulis(k.n)}"></td>
+      <td><input class="d" type="text" inputmode="decimal" data-f="p" value="${adaA?tulis(aa.v):tulis(k.p)}"${adaA?' readonly style="opacity:.6"':''}></td>
+      <td><input class="d" type="text" inputmode="decimal" data-f="l" value="${tulis(valB)}"${adaB?' readonly style="opacity:.6"':''}></td>
+      <td><input class="d" type="text" inputmode="decimal" data-f="t" value="${tulis(valH)}"${adaH?' readonly style="opacity:.6"':''}></td>
+      <td class="num hasil" style="color:${v<0?'var(--minus)':'var(--plus)'}">${fmtV(Math.abs(v))}</td>
+      <td><button class="mini" data-act="del">✕</button></td></tr>`;
+  });
+  h+=`</tbody></table>
+    <div style="margin-top:7px;font-size:11px;color:var(--muted);line-height:1.6">
+      <b>Panjang, lebar, tinggi dalam meter.</b> Ukuran penampang boleh ditulis apa adanya —
+      sloof <b>20/40</b> cukup diketik <b>20cm</b> di lebar dan <b>40cm</b> di tinggi.
+      Untuk dinding: isi <b>panjang</b> dari denah dan <b>tinggi</b> bata, kolom lebar dikosongkan.
+      Koma dipakai sebagai desimal. Kolom yang dikosongkan diabaikan.
+    </div>
+    <div style="margin-top:7px;display:flex;gap:7px;flex-wrap:wrap;align-items:center">
+      <button class="mini" data-act="add">+ baris uraian</button>
+      <span style="font-size:11.5px;color:var(--muted)">atau kunci volume:</span>
+      <input type="text" inputmode="decimal" class="d" data-f="man" style="width:94px;text-align:right"
+             value="${tulis(it.volManual)}" placeholder="manual">
+      <span style="flex:1"></span>
+      <input type="text" data-f="nama" value="${(it.nama||'').replace(/"/g,'&quot;')}"
+             style="min-width:200px" placeholder="nama pekerjaan">
+      <input type="text" data-f="sat" value="${it.sat||''}" style="width:64px" placeholder="sat">
+      <button class="mini" data-act="hapusItem">hapus pekerjaan</button>
+    </div>`;
+  td.innerHTML=h; tr.appendChild(td);
+
+  tr.querySelectorAll('tbody tr').forEach(row=>{
+    const i=+row.dataset.k;
+    row.querySelectorAll('input,select').forEach(el=>el.addEventListener('change',()=>{
+      const f=el.dataset.f;
+      it.komp[i][f]=(f==='ket'||f==='ref'||f==='uk'||f==='uk2'||f==='ac')? el.value : num(el.value);
+      save(); render();
+    }));
+    row.querySelector('[data-act="sgn"]').addEventListener('click',()=>{
+      it.komp[i].s = it.komp[i].s<0?1:-1; save(); render();});
+    row.querySelector('[data-act="del"]').addEventListener('click',()=>{
+      it.komp.splice(i,1); save(); render();});
+  });
+  tr.querySelector('[data-act="add"]').addEventListener('click',()=>{
+    it.komp.push({ket:'',s:1,n:1,p:'',l:'',t:'',ref:''}); save(); render();});
+  tr.querySelector('[data-f="man"]').addEventListener('change',e=>{
+    it.volManual=num(e.target.value); save(); render();});
+  tr.querySelector('[data-f="nama"]').addEventListener('change',e=>{it.nama=e.target.value;save();render();});
+  tr.querySelector('[data-f="sat"]').addEventListener('change',e=>{it.sat=e.target.value;save();render();});
+  tr.querySelector('[data-act="hapusItem"]').addEventListener('click',()=>{
+    if(!confirm('Hapus pekerjaan "'+it.nama+'"?'))return;
+    P().bab.forEach(b=>{const i=b.items.indexOf(it); if(i>=0)b.items.splice(i,1);});
+    buka=null; save(); render();});
+  return tr;
+}
+
+function render(){
+  const data=hitung(), tb=document.getElementById('tbody'); tb.innerHTML=''; let grand=0;
+  data.forEach(b=>{
+    const trb=document.createElement('tr'); trb.className='bab';
+    trb.innerHTML=`<td>${b.kode}</td><td colspan="5">${b.judul}</td>
+      <td class="c noprint"><span class="babbar">
+        <button class="mini" data-bab-add="${b.ref.id}" title="tambah pekerjaan">+</button>
+        <button class="mini" data-bab-edit="${b.ref.id}" title="ubah judul">✎</button>
+        <button class="mini" data-bab-del="${b.ref.id}" title="hapus bab">✕</button></span></td>`;
+    tb.appendChild(trb);
+    b.items.forEach(it=>{
+      const tr=document.createElement('tr'); tr.className='item';
+      tr.innerHTML=
+        `<td class="c">${it.no}</td>`+
+        `<td><span class="nm">${namaTampil(it.ref)}</span><span class="rumus">`+
+          `${it.manual?'<i>volume dikunci manual</i>':(it.rumus||'<span style="opacity:.6">belum ada uraian</span>')}</span></td>`+
+        `<td class="num"${it.vol<0?' style="color:var(--minus);font-weight:800" title="Volume negatif — periksa uraiannya"':''}>`+
+          `${it.vol<0?'⚠ ':''}${fmtV(it.vol)}</td>`+
+        `<td class="c">${it.ref.sat||''}</td>`+
+        `<td class="num"><input class="hrg" type="text" inputmode="numeric" data-h="${it.ref.id}" `+
+          `value="${it.hrg? it.hrg.toLocaleString('id-ID') : ''}"></td>`+
+        `<td class="num">${it.jml?fmtRp(it.jml):'—'}</td>`+
+        `<td class="c noprint"><button class="fx" data-fx="${it.ref.id}">fx</button></td>`;
+      tb.appendChild(tr);
+      if(buka===it.ref.id) tb.appendChild(barisUraian(it.ref));
+    });
+    const trs=document.createElement('tr'); trs.className='sub';
+    trs.innerHTML=`<td></td><td colspan="4" style="text-align:right">Jumlah ${b.judul}</td>
+      <td class="num">${fmtRp(b.sub)}</td><td class="noprint"></td>`;
+    tb.appendChild(trs); grand+=b.sub;
+  });
+  const neg=[]; data.forEach(b=>b.items.forEach(it=>{if(it.vol<0) neg.push(namaTampil(it.ref));}));
+  const pw=document.getElementById('peringatan');
+  if(pw){ pw.innerHTML = neg.length
+    ? `⚠ <b>${neg.length} baris bervolume negatif</b> — periksa uraiannya: ${neg.join(' · ')}` : '';
+    pw.style.display = neg.length? 'block':'none'; }
+  document.getElementById('grand').textContent=fmtRp(grand);
+  document.getElementById('terbilang').textContent=
+    'Terbilang: '+terbilang(grand).replace(/\s+/g,' ').trim()+' Rupiah';
+
+  const rk=document.getElementById('rekap'); rk.innerHTML='';
+  data.forEach(b=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="width:56px">${b.kode}</td><td>${b.judul}</td>
+      <td class="num" style="width:140px">${fmtRp(b.sub)}</td>
+      <td class="num" style="width:66px;color:var(--muted)">${grand?(b.sub/grand*100).toFixed(1)+'%':''}</td>`;
+    rk.appendChild(tr);
+  });
+  const trt=document.createElement('tr');
+  trt.innerHTML=`<td></td><td class="tot">JUMLAH</td><td class="num tot">${fmtRp(grand)}</td><td></td>`;
+  rk.appendChild(trt);
+  const inf=P().info, tt=document.getElementById('ttd');
+  if(tt) tt.innerHTML=`<table><tr><td colspan="2" style="text-align:right;padding-bottom:6px">
+      ${inf.kota||''}${inf.kota?', ':''}${inf.tanggal||''}</td></tr>
+    <tr><td><b>PIHAK PERTAMA — Pemilik</b></td><td><b>PIHAK KEDUA — Pelaksana</b></td></tr>
+    <tr class="nm2"><td></td><td></td></tr>
+    <tr><td style="border-top:1px solid #000">${inf.owner||'(........................)'}</td>
+        <td style="border-top:1px solid #000">${inf.pelaksana||'(........................)'}</td></tr></table>`;
+  renderAtap(); renderAcuan(); renderUkuran(); pasangEvent();
+}
+function namaTampil(it){
+  let n=it.nama||'';
+  if(n.indexOf('{ukuran*}')>=0){
+    const V=volSemua(), lab=[];
+    (it.komp||[]).forEach(k=>{
+      if(!k.uk) return;
+      const u=ukById(k.uk); if(!u) return;
+      const adaB=!(u.b===''||u.b==null), adaH=!(u.h===''||u.h==null);
+      if(!(adaB&&adaH)) return;                 // lewati ukuran satu nilai (mis. tebal dak)
+      if(Math.abs(V.nilai(k))<1e-9) return;     // lewati tipe yang panjangnya 0
+      const L=labelUk(u); if(lab.indexOf(L)<0) lab.push(L);
+    });
+    n=n.replace('{ukuran*}', lab.length? lab.join(' · ') : '—');
+  }
+  if(n.indexOf('{ukuran2}')>=0){
+    const k2=(it.komp||[]).find(x=>x.uk2); const u2=k2? ukById(k2.uk2):null;
+    n=n.replace('{ukuran2}', u2? labelUk(u2) : '—');
+  }
+  if(n.indexOf('{ukuran}')<0) return n;
+  let k=(it.komp||[]).find(x=>x.uk), u=k? ukById(k.uk):null;
+  if(!u){ const ka=(it.komp||[]).find(x=>x.ac && (acById(x.ac)||{}).uk);
+          if(ka) u=ukById(acById(ka.ac).uk); }
+  return n.replace('{ukuran}', u? labelUk(u) : '—');
+}
+function cariItem(id){let r=null;P().bab.forEach(b=>b.items.forEach(it=>{if(it.id===id)r=it;}));return r;}
+function pasangEvent(){
+  const tb=document.getElementById('tbody');
+  tb.querySelectorAll('[data-fx]').forEach(b=>b.addEventListener('click',()=>{
+    buka=(buka===b.dataset.fx)?null:b.dataset.fx; render();}));
+  tb.querySelectorAll('input.hrg').forEach(i=>i.addEventListener('change',e=>{
+    const it=cariItem(e.target.dataset.h);
+    if(it){const v=num(e.target.value,true); it.harga=(v===''?0:v); save(); render();}}));
+  tb.querySelectorAll('[data-bab-add]').forEach(b=>b.addEventListener('click',()=>{
+    const bb=P().bab.find(x=>x.id===b.dataset.babAdd); if(!bb)return;
+    const nama=prompt('Nama pekerjaan baru:',''); if(!nama)return;
+    const it={id:uid('i'),nama,sat:'m³',harga:0,volManual:'',komp:[{ket:'',s:1,n:1,p:'',l:'',t:'',ref:''}]};
+    bb.items.push(it); buka=it.id; save(); render();}));
+  tb.querySelectorAll('[data-bab-edit]').forEach(b=>b.addEventListener('click',()=>{
+    const bb=P().bab.find(x=>x.id===b.dataset.babEdit); if(!bb)return;
+    const k=prompt('Kode bab:',bb.kode); if(k===null)return;
+    const j=prompt('Judul bab:',bb.judul); if(j===null)return;
+    bb.kode=k; bb.judul=j; save(); render();}));
+  tb.querySelectorAll('[data-bab-del]').forEach(b=>b.addEventListener('click',()=>{
+    const i=P().bab.findIndex(x=>x.id===b.dataset.babDel); if(i<0)return;
+    if(!confirm('Hapus bab "'+P().bab[i].judul+'" beserta isinya?'))return;
+    P().bab.splice(i,1); buka=null; save(); render();}));
+}
+function renderAtap(){
+  const tb=document.getElementById('tbAtap'); tb.innerHTML='';
+  (P().atap||[]).forEach((b,i)=>{
+    const ok=sudutOk(b.deg), fk=faktorMiring(b.deg), datar=(Number(b.p)||0)*(Number(b.l)||0);
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><input type="text" data-t="${i}" data-f="nama" value="${(b.nama||'').replace(/"/g,'&quot;')}" style="width:100%"></td>
+      <td class="num"><input class="d" type="text" inputmode="decimal" data-t="${i}" data-f="p" value="${tulis(b.p)}" style="width:84px;text-align:right"></td>
+      <td class="num"><input class="d" type="text" inputmode="decimal" data-t="${i}" data-f="l" value="${tulis(b.l)}" style="width:84px;text-align:right"></td>
+      <td class="num"><input class="d" type="text" inputmode="decimal" data-t="${i}" data-f="deg" value="${tulis(b.deg)}" style="width:74px;text-align:right"></td>
+      <td class="num">${fmtV(datar)}</td>
+      <td class="num"${ok?'':' style="color:var(--minus);font-weight:700"'}>${ok?fk.toLocaleString('id-ID',{minimumFractionDigits:4,maximumFractionDigits:4}):'sudut ?'}</td>
+      <td class="num"><b>${fmtV(luasBidang(b))}</b></td>
+      <td class="c noprint"><button class="mini" data-thapus="${i}">✕</button></td>`;
+    tb.appendChild(tr);
+  });
+  document.getElementById('atapTotal').textContent=fmtV(luasAtapTotal())+' m²';
+  tb.querySelectorAll('input').forEach(el=>el.addEventListener('change',()=>{
+    const b=P().atap[+el.dataset.t], f=el.dataset.f;
+    b[f]=(f==='nama')? el.value : num(el.value); save(); render();}));
+  tb.querySelectorAll('[data-thapus]').forEach(x=>x.addEventListener('click',()=>{
+    if(P().atap.length<2){toast('Minimal satu bidang atap');return;}
+    P().atap.splice(+x.dataset.thapus,1); save(); render();}));
+}
+function renderAcuan(){
+  const tb=document.getElementById('tbAc'); tb.innerHTML='';
+  const pakai={};
+  P().bab.forEach(b=>b.items.forEach(it=>(it.komp||[]).forEach(k=>{
+    if(k.ac) pakai[k.ac]=(pakai[k.ac]||0)+1;})));
+  const urut=(P().acuan||[]).map((a,i)=>({a,i}))
+    .sort((x,y)=>{const gx=GRUPAC.indexOf(x.a.grup||'Lainnya'), gy=GRUPAC.indexOf(y.a.grup||'Lainnya');
+      return (gx<0?9:gx)-(gy<0?9:gy) || x.i-y.i;});
+  let g0=null;
+  urut.forEach(({a,i})=>{
+    const g=a.grup||'Lainnya';
+    if(g!==g0){ g0=g; const th=document.createElement('tr'); th.className='bab';
+      th.innerHTML=`<td colspan="6">${g.toUpperCase()}</td>`; tb.appendChild(th); }
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><select data-a="${i}" data-f="grup" style="width:100%">${
+        GRUPAC.map(x=>`<option${x===g?' selected':''}>${x}</option>`).join('')}</select></td>
+      <td><input type="text" data-a="${i}" data-f="nama" value="${(a.nama||'').replace(/"/g,'&quot;')}" style="width:100%">${
+        (()=>{const u=a.uk? ukById(a.uk):null; if(!u) return '';
+          const kot=(f,ttl)=>`<input class="d" type="text" inputmode="decimal" data-ukedit="${u.id}" data-f="${f}"
+                   value="${tulis(u[f])}" style="width:62px;text-align:right;padding:2px 5px" title="${ttl}">`;
+          const adaB=!(u.b===''||u.b==null);
+          const isi = adaB
+            ? `<span>ukuran</span>${kot('b','lebar (m)')}<span>/</span>${kot('h','tinggi (m)')}`
+            : `<span>tinggi</span>${kot('h','tinggi (m)')}`;
+          return `<div style="display:flex;align-items:center;gap:5px;margin-top:3px;font-size:10.5px;color:var(--muted);flex-wrap:wrap">
+            ${isi}<b style="color:var(--plus)">${labelUk(u)}</b>
+            <span style="opacity:.7">· ${u.nama}</span></div>`;})()}</td>
+      <td class="num">${a.auto==='atap'
+        ? `<b title="dihitung di tabel Atap">${Number(luasAtapTotal()).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})}</b>`
+        : `<input class="d" type="text" inputmode="decimal" data-a="${i}" data-f="v" value="${tulis(a.v)}" style="width:108px;text-align:right">`}</td>
+      <td class="c"><input type="text" data-a="${i}" data-f="sat" value="${a.sat||''}" style="width:50px;text-align:center"></td>
+      <td class="c" style="color:var(--muted)">${pakai[a.id]||0}×</td>
+      <td class="c noprint"><button class="mini" data-ahapus="${i}">✕</button></td>`;
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll('[data-ukedit]').forEach(el=>el.addEventListener('change',()=>{
+    const u=ukById(el.dataset.ukedit); if(!u) return;
+    u[el.dataset.f]=num(el.value); save(); render();}));
+  tb.querySelectorAll('input,select').forEach(el=>{
+    if(el.dataset.a===undefined) return;
+    el.addEventListener('change',()=>{
+      const a=P().acuan[+el.dataset.a], f=el.dataset.f;
+      a[f]=(f==='v')? num(el.value) : el.value; save(); render();});});
+  tb.querySelectorAll('[data-ahapus]').forEach(b=>b.addEventListener('click',()=>{
+    const i=+b.dataset.ahapus, a=P().acuan[i];
+    if(pakai[a.id] && !confirm(`Acuan "${a.nama}" masih dipakai ${pakai[a.id]} baris. Hapus juga?`))return;
+    P().bab.forEach(bb=>bb.items.forEach(it=>(it.komp||[]).forEach(k=>{if(k.ac===a.id)k.ac='';})));
+    P().acuan.splice(i,1); save(); render();}));
+}
+function renderUkuran(){
+  const tb=document.getElementById('tbUk'); tb.innerHTML='';
+  const pakai={};
+  P().bab.forEach(b=>b.items.forEach(it=>(it.komp||[]).forEach(k=>{
+    if(k.uk) pakai[k.uk]=(pakai[k.uk]||0)+1;})));
+  const urut=(P().ukuran||[]).map((u,i)=>({u,i}))
+      .sort((a,b)=>{const ga=GRUP.indexOf(a.u.grup||'Lainnya'), gb=GRUP.indexOf(b.u.grup||'Lainnya');
+        return (ga<0?9:ga)-(gb<0?9:gb) || a.i-b.i;});
+  let grupTerakhir=null;
+  urut.forEach(({u,i})=>{
+    const g=u.grup||'Lainnya';
+    if(g!==grupTerakhir){ grupTerakhir=g;
+      const th=document.createElement('tr'); th.className='bab';
+      th.innerHTML=`<td colspan="6">${g.toUpperCase()}</td>`; tb.appendChild(th);
+    }
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><select data-u="${i}" data-f="grup" style="width:100%">${
+        GRUP.map(x=>`<option${x===g?' selected':''}>${x}</option>`).join('')}</select></td>
+      <td><input type="text" data-u="${i}" data-f="nama" value="${(u.nama||'').replace(/"/g,'&quot;')}" style="width:100%"></td>
+      <td class="num"><input class="d" type="text" inputmode="decimal" data-u="${i}" data-f="b" value="${tulis(u.b)}" style="width:92px;text-align:right" placeholder="—"></td>
+      <td class="num"><input class="d" type="text" inputmode="decimal" data-u="${i}" data-f="h" value="${tulis(u.h)}" style="width:92px;text-align:right"></td>
+      <td class="c"><b>${labelUk(u)}</b></td>
+      <td class="c" style="color:var(--muted)">${pakai[u.id]||0}×</td>
+      <td class="c noprint"><button class="mini" data-uhapus="${i}">✕</button></td>`;
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll('input,select').forEach(el=>el.addEventListener('change',()=>{
+    const u=P().ukuran[+el.dataset.u], f=el.dataset.f;
+    u[f] = (f==='nama'||f==='grup')? el.value : num(el.value);
+    save(); render();
+  }));
+  tb.querySelectorAll('[data-uhapus]').forEach(b=>b.addEventListener('click',()=>{
+    const i=+b.dataset.uhapus, u=P().ukuran[i];
+    if(pakai[u.id] && !confirm(`Ukuran "${u.nama}" masih dipakai ${pakai[u.id]} baris. Hapus juga?`))return;
+    P().bab.forEach(bb=>bb.items.forEach(it=>(it.komp||[]).forEach(k=>{if(k.uk===u.id)k.uk='';})));
+    P().ukuran.splice(i,1); save(); render();
+  }));
+}
+function renderProyek(){
+  const s=document.getElementById('proyek'); s.innerHTML='';
+  Object.entries(DB.proyek).forEach(([id,p])=>{
+    const o=document.createElement('option'); o.value=id; o.textContent=p.nama;
+    if(id===DB.aktif)o.selected=true; s.appendChild(o);});
+}
+
+/* =================== EKSPOR =================== */
+const strip=s=>String(s).replace(/<[^>]*>/g,'');
+function tabelHTML(){
+  const pr=P(), inf=pr.info, data=hitung(), ur=document.getElementById('cbUraian').checked,
+        nol=document.getElementById('cbNol').checked;
+  let grand=0; data.forEach(b=>grand+=b.sub);
+  const K=(t,n)=>`<td colspan="${n||1}">${t}</td>`;
+  let h='<table border="1" cellspacing="0" cellpadding="5" style="font-family:Arial">';
+  h+=`<tr><td colspan="6" align="center" style="font-size:15pt;font-weight:bold">RENCANA ANGGARAN BIAYA</td></tr>`;
+  h+=`<tr><td colspan="6" align="center" style="font-size:12pt;font-weight:bold">${inf.namaProyek||pr.nama}</td></tr>`;
+  h+=`<tr><td colspan="6" align="center">${inf.lokasi||''}</td></tr><tr><td colspan="6"></td></tr>`;
+  if(inf.nomor) h+=`<tr>${K('Nomor',1)}${K(': '+inf.nomor,5)}</tr>`;
+  if(inf.owner) h+=`<tr>${K('Pemilik',1)}${K(': '+inf.owner,5)}</tr>`;
+  if(inf.pelaksana) h+=`<tr>${K('Pelaksana',1)}${K(': '+inf.pelaksana,5)}</tr>`;
+  h+=`<tr><td colspan="6"></td></tr>`;
+  h+=`<tr style="background:#1F3864;color:#fff;font-weight:bold"><td>No</td><td>Jenis Pekerjaan</td>`+
+     `<td>Volume</td><td>Sat</td><td>Harga Satuan (Rp)</td><td>Jumlah Harga (Rp)</td></tr>`;
+  data.forEach(b=>{
+    h+=`<tr style="background:#FFF2CC;font-weight:bold"><td>${b.kode}</td><td colspan="5">${b.judul}</td></tr>`;
+    b.items.forEach(it=>{
+      if(nol && !it.vol) return;
+      h+=`<tr><td align="center">${it.no}</td><td>${namaTampil(it.ref)}</td>`+
+         `<td align="right">${it.vol?it.vol.toFixed(2):''}</td><td align="center">${it.ref.sat||''}</td>`+
+         `<td align="right">${it.hrg||''}</td><td align="right">${it.jml?Math.round(it.jml):''}</td></tr>`;
+      if(ur&&it.rumus&&!it.manual)
+        h+=`<tr><td></td><td style="font-size:8pt;font-style:italic;color:#666">`+
+           `${strip(it.rumus.replace(/<br>/g,'  ;  '))}</td><td colspan="4"></td></tr>`;
+    });
+    h+=`<tr style="font-weight:bold"><td></td><td colspan="4" align="right">Jumlah ${b.judul}</td>`+
+       `<td align="right">${Math.round(b.sub)}</td></tr>`;
+  });
+  h+=`<tr><td colspan="6"></td></tr>`;
+  h+=`<tr style="background:#1F3864;color:#fff;font-weight:bold"><td colspan="6">REKAPITULASI</td></tr>`;
+  data.forEach(b=>{ h+=`<tr><td align="center">${b.kode}</td><td colspan="4">${b.judul}</td>`+
+    `<td align="right">${Math.round(b.sub)}</td></tr>`; });
+  h+=`<tr style="background:#FFF2CC;font-weight:bold"><td colspan="5" align="right">JUMLAH TOTAL</td>`+
+     `<td align="right">${Math.round(grand)}</td></tr>`;
+  h+=`<tr><td colspan="6"><i>Terbilang: ${terbilang(grand).replace(/\s+/g,' ').trim()} Rupiah</i></td></tr>`;
+  h+=`<tr><td colspan="6"></td></tr>`;
+  h+=`<tr><td colspan="6"><b>Catatan:</b> harga di atas belum termasuk IMB/PBG, meteran listrik PLN, `+
+     `meteran air PDAM, dan pekerjaan di luar rincian ini.</td></tr>`;
+  h+=`<tr><td colspan="6"></td></tr>`;
+  h+=`<tr><td colspan="6" align="right">${inf.kota||''}${inf.kota?', ':''}${inf.tanggal||''}</td></tr>`;
+  h+=`<tr><td colspan="3" align="center"><b>PIHAK PERTAMA — Pemilik</b></td>`+
+     `<td colspan="3" align="center"><b>PIHAK KEDUA — Pelaksana</b></td></tr>`;
+  h+=`<tr><td colspan="3" height="70"></td><td colspan="3"></td></tr>`;
+  h+=`<tr><td colspan="3" align="center">${inf.owner||'(........................)'}</td>`+
+     `<td colspan="3" align="center">${inf.pelaksana||'(........................)'}</td></tr>`;
+  h+='</table>';
+  return h;
+}
+function tabelTSV(){
+  const data=hitung(), ur=document.getElementById('cbUraian').checked,
+        nol=document.getElementById('cbNol').checked, L=[];
+  L.push(['No','Jenis Pekerjaan','Volume','Sat','Harga (Rp)','Jumlah Harga (Rp)'].join('\t'));
+  data.forEach(b=>{
+    L.push([b.kode,b.judul,'','','',''].join('\t'));
+    b.items.forEach(it=>{
+      if(nol && !it.vol) return;
+      L.push([it.no,namaTampil(it.ref),it.vol?it.vol.toFixed(2):'',it.ref.sat||'',it.hrg||'',
+              it.jml?Math.round(it.jml):''].join('\t'));
+      if(ur&&it.rumus&&!it.manual)
+        L.push(['',strip(it.rumus.replace(/<br>/g,'  ;  ')),'','','',''].join('\t'));
+    });
+    L.push(['','Jumlah '+b.judul,'','','',Math.round(b.sub)].join('\t'));
+  });
+  return L.join('\n');
+}
+const toast=m=>{const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),1900);};
+function unduh(nama,isi,tipe){
+  const b=new Blob([isi],{type:tipe}); const a=document.createElement('a');
+  a.href=URL.createObjectURL(b); a.download=nama; a.click(); URL.revokeObjectURL(a.href);}
+
+/* =================== EVENT =================== */
+document.getElementById('proyek').addEventListener('change',e=>{
+  DB.aktif=e.target.value; buka=null; save(); renderIdent(); render();});
+document.getElementById('bBaru').addEventListener('click',()=>{
+  const n=prompt('Nama proyek baru (pakai cetakan kost 2 lantai):','Proyek Baru'); if(!n)return;
+  const id=uid('p'); DB.proyek[id]=proyekBaru(n); DB.aktif=id; buka=null;
+  save(); renderProyek(); renderIdent(); render(); toast('Dibuat dari cetakan');});
+document.getElementById('bKosong').addEventListener('click',()=>{
+  const n=prompt('Nama proyek baru (mulai dari kosong):','Proyek Kosong'); if(!n)return;
+  const id=uid('p'); DB.proyek[id]=proyekBaru(n,true); DB.aktif=id; buka=null;
+  save(); renderProyek(); renderIdent(); render(); toast('Proyek kosong dibuat');});
+document.getElementById('bSalin').addEventListener('click',()=>{
+  const n=prompt('Nama salinan:',P().nama+' (salinan)'); if(!n)return;
+  const id=uid('p'), c=JSON.parse(JSON.stringify(P())), peta={};
+  c.bab.forEach(b=>{b.id=uid('b');b.items.forEach(it=>{const ni=uid('i');peta[it.id]=ni;it.id=ni;});});
+  c.bab.forEach(b=>b.items.forEach(it=>it.komp.forEach(k=>{if(k.ref&&peta[k.ref])k.ref=peta[k.ref];})));
+  c.nama=n; c.info.namaProyek=n; DB.proyek[id]=c; DB.aktif=id; buka=null;
+  save(); renderProyek(); renderIdent(); render(); toast('Disalin');});
+document.getElementById('bHapus').addEventListener('click',()=>{
+  if(Object.keys(DB.proyek).length<2){toast('Minimal satu proyek');return;}
+  if(!confirm('Hapus proyek "'+P().nama+'"?'))return;
+  delete DB.proyek[DB.aktif]; DB.aktif=Object.keys(DB.proyek)[0]; buka=null;
+  save(); renderProyek(); renderIdent(); render(); toast('Dihapus');});
+document.getElementById('bAtapAdd').addEventListener('click',()=>{
+  const n=prompt('Nama bidang atap:','Bidang atap teras'); if(!n)return;
+  P().atap.push({id:uid('T'),nama:n,p:0,l:0,deg:35}); save(); render();
+  toast('Bidang atap ditambah');});
+document.getElementById('bAcAdd').addEventListener('click',()=>{
+  const n=prompt('Nama angka acuan baru:','Keliling Dinding Teras'); if(!n)return;
+  const g=prompt('Kelompok (Panjang / Luas / Talang / Pengurangan / Lainnya):','Panjang')||'Lainnya';
+  P().acuan.push({id:uid('A'),grup:(GRUPAC.indexOf(g)>=0?g:'Lainnya'),nama:n,v:0,sat:'m¹'});
+  save(); render(); toast('Acuan ditambah — isi nilainya');});
+document.getElementById('bUkAdd').addEventListener('click',()=>{
+  const n=prompt('Nama ukuran baru:','Balok Latei'); if(!n)return;
+  const g=prompt('Kelompok (Struktur / Talang / Dinding / Bukaan / Lainnya):','Struktur')||'Lainnya';
+  P().ukuran.push({id:uid('U'),grup:(GRUP.indexOf(g)>=0?g:'Lainnya'),nama:n,b:0.15,h:0.20});
+  save(); render();
+  toast('Ukuran ditambah — atur lebar & tingginya');});
+document.getElementById('bTambahBab').addEventListener('click',()=>{
+  const k=prompt('Kode bab:','XIII'); if(k===null)return;
+  const j=prompt('Judul bab:','PEK. BARU'); if(j===null)return;
+  P().bab.push({id:uid('b'),kode:k,judul:j,items:[]}); save(); render();});
+document.getElementById('bXls').addEventListener('click',()=>{
+  const nm=(P().info.namaProyek||P().nama).replace(/[^\w\s-]/g,'').trim().replace(/\s+/g,'-')||'proyek';
+  unduh('RAB-'+nm+'.xls','﻿<html><head><meta charset="utf-8"></head><body>'+tabelHTML()+'</body></html>',
+        'application/vnd.ms-excel;charset=utf-8');
+  toast('Excel diunduh — tinggal dibuka lalu dicetak');});
+document.getElementById('bCopy').addEventListener('click',async()=>{
+  const t=tabelTSV();
+  try{await navigator.clipboard.writeText(t); toast('Tersalin — tempel (Ctrl+V) di Excel');}
+  catch(e){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);
+    ta.select();document.execCommand('copy');ta.remove();toast('Tersalin — tempel di Excel');}});
+document.getElementById('bPrint').addEventListener('click',()=>window.print());
+document.getElementById('bEks').addEventListener('click',()=>{
+  unduh('RAB-MRD-cadangan-'+new Date().toISOString().slice(0,10)+'.json',
+        JSON.stringify(DB,null,1),'application/json'); toast('Cadangan diunduh');});
+document.getElementById('bImp').addEventListener('click',()=>document.getElementById('fImp').click());
+document.getElementById('fImp').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f)return; const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result); if(!d.proyek) throw 0;
+      Object.assign(DB.proyek,d.proyek);
+      DB.aktif=(d.aktif&&DB.proyek[d.aktif])?d.aktif:DB.aktif; buka=null;
+      save(); renderProyek(); renderIdent(); render(); toast('Cadangan dipulihkan');
+    }catch(x){toast('Berkas cadangan tidak dikenali');}};
+  r.readAsText(f); e.target.value='';});
+
+/* =================== MULAI =================== */
+const VERSI_APP='2026-11-04-1';     // <-- NAIKKAN bersamaan dengan VERSI di sw.js
+document.getElementById('versiApp').textContent='versi '+VERSI_APP;
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+load(); renderProyek(); renderIdent(); render();
+</script>
+</body>
+</html>
