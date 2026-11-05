@@ -92,6 +92,20 @@ tr.edit>td{background:var(--ok);padding:10px 8px 12px}
   padding:9px 16px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:99}
 .toast.on{opacity:1}
 .babbar{display:inline-flex;gap:5px}
+/* beri ruang di kanan judul kartu supaya tidak tertutup lencana versi */
+.card>h2{padding-right:128px}
+@media(max-width:640px){.card>h2{padding-right:14px;flex-wrap:wrap}
+  .card>h2>span:first-child{flex:1 1 100%}
+  .verbadge{font-size:10px;padding:3px 8px;top:5px;right:6px}}
+.verbadge{position:fixed;top:8px;right:10px;z-index:60;background:var(--head);color:#fff;
+  font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:999px;cursor:pointer;
+  box-shadow:0 1px 5px rgba(0,0,0,.22);user-select:none}
+.verbadge:hover{background:var(--accent)}
+.terkunci input:not([type=checkbox]),.terkunci select{pointer-events:none;background:#f2f2f1;color:#777}
+.terkunci .mini,.terkunci .sgn{display:none!important}
+.pita{background:#fdf0d5;border:1px solid #e0b97a;color:#7a5200;border-radius:9px;
+  padding:9px 14px;margin-bottom:12px;font-size:12.5px;display:flex;justify-content:space-between;
+  align-items:center;gap:10px;flex-wrap:wrap}
 
 .cetakOnly{display:none}
 @media print{
@@ -104,11 +118,13 @@ tr.edit>td{background:var(--ok);padding:10px 8px 12px}
   thead th{background:#1f3864!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   tr.bab>td{background:#eee!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   tr.edit{display:none} input{border:none!important;background:transparent!important;padding:0!important}
+  .verbadge,.pita{display:none!important}
 }
 @media (max-width:640px){.wrap{padding:9px}.brand{font-size:17px}}
 </style>
 </head>
 <body>
+<div class="verbadge noprint" id="verBadge" title="Versi aplikasi yang sedang berjalan — klik untuk keterangan">versi —</div>
 <div class="wrap">
 
 <header>
@@ -116,8 +132,7 @@ tr.edit>td{background:var(--ok);padding:10px 8px 12px}
    <img src="logo.png" alt="" style="height:42px;width:auto" onerror="this.style.display='none'">
    <div>
     <div class="brand">RAB <span>MRD</span></div>
-    <div class="sub">Penyusun Rencana Anggaran Biaya — uraian volume per pekerjaan
-      · <span id="versiApp"></span></div>
+    <div class="sub">Penyusun Rencana Anggaran Biaya — uraian volume per pekerjaan</div>
    </div>
   </div>
   <div class="row noprint" style="display:flex;gap:7px;flex-wrap:wrap">
@@ -126,6 +141,8 @@ tr.edit>td{background:var(--ok);padding:10px 8px 12px}
     <button id="bKosong">+ Kosong</button>
     <button id="bSalin">Duplikat</button>
     <button id="bHapus">Hapus</button>
+    <button id="bCepat">⚡ Isian Cepat Denah</button>
+    <button id="bKunci">🔒 Kunci</button>
     <button id="bDaftar">☰ Daftar Proyek</button>
     <button id="bEks">⬇ Cadangan</button>
     <button id="bImp">⬆ Pulihkan</button>
@@ -133,14 +150,21 @@ tr.edit>td{background:var(--ok);padding:10px 8px 12px}
   </div>
 </header>
 
+<div class="pita noprint" id="pitaKunci" style="display:none">
+  <span><b>Proyek ini DIKUNCI.</b> Angka, harga, dan gambarnya tidak bisa diubah —
+        aman dipakai sebagai arsip atau lampiran kontrak yang sudah disepakati.</span>
+  <button id="bBukaKunci">🔓 Buka Kunci</button>
+</div>
+
 <div class="card noCetak" id="cDaftar" style="display:none">
   <h2><span>Daftar Proyek</span>
       <span class="noprint" style="font-weight:400;font-size:11.5px;color:var(--muted)"
             id="infoSimpanan"></span></h2>
   <div class="body">
     <table><thead><tr>
-      <th>Nama proyek</th><th style="width:30%">Lokasi</th><th class="c" style="width:92px">Gambar</th>
-      <th class="num" style="width:150px">Total (Rp)</th><th class="c noprint" style="width:230px"></th>
+      <th>Nama proyek</th><th style="width:22%">Lokasi</th><th class="c" style="width:88px">Gambar</th>
+      <th class="c" style="width:96px">Diubah</th>
+      <th class="num" style="width:140px">Total (Rp)</th><th class="c noprint" style="width:290px"></th>
     </tr></thead><tbody id="tbProyek"></tbody></table>
     <div class="note" style="padding:10px 0 0">
       Tiap proyek menyimpan angka acuan, ukuran, harga, dan gambar denahnya sendiri.
@@ -163,11 +187,34 @@ tr.edit>td{background:var(--ok);padding:10px 8px 12px}
     <input type="file" id="fGbr" accept="image/*,application/pdf" multiple hidden>
     <div id="gridGbr" class="gbrGrid"></div>
     <div class="note" style="padding:10px 0 0">
+      <b style="color:var(--minus)">Gambar hanya lampiran — angkanya TIDAK terbaca sendiri.</b>
+      Setelah denah dimasukkan, panjang dinding, jumlah kamar, dan ukuran lainnya tetap harus
+      Bapak ketik di <b>Daftar Angka Acuan</b> dan <b>Daftar Ukuran</b>. Gambarnya berguna
+      supaya angka itu bisa dicocokkan ulang kapan saja tanpa mencari berkas denah.<br>
       Foto atau hasil pindai denah disimpan di dalam proyek ini — ikut terbawa saat
       <b>Duplikat</b> dan saat <b>Cadangan</b>.
       Gambar otomatis diperkecil (sisi terpanjang 1400 piksel) supaya tidak memberatkan penyimpanan;
       aslinya tetap ada di komputer Bapak. Berkas PDF disimpan apa adanya, jadi pakai PDF yang kecil saja.
       Klik gambar untuk melihat besar.
+    </div>
+  </div>
+</div>
+
+<div class="card noCetak" id="cCepat" style="display:none">
+  <h2><span>Isian Cepat Denah &nbsp;<span style="font-weight:400;color:var(--muted);font-size:12px">—
+        isi angka yang terbaca di denah, sisanya dihitung aplikasi</span></span>
+      <span class="noprint"><button class="mini" id="bCepatHitung">Hitung &amp; Lihat Hasil</button></span></h2>
+  <div class="body">
+    <div id="gCepat"></div>
+    <div style="margin-top:4px"><button class="primary" id="bCepatHitung2">Hitung &amp; Lihat Hasil</button></div>
+    <div id="hasilCepat" style="margin-top:14px"></div>
+    <div class="note" style="padding:12px 0 0">
+      Angka di sini <b>tidak langsung mengubah RAB</b>. Tekan <b>Hitung &amp; Lihat Hasil</b> dulu —
+      akan muncul daftar <b>angka lama → angka baru</b>. Baru setelah Bapak tekan
+      <b>Terapkan</b>, Daftar Angka Acuan ikut berubah.<br>
+      Isiannya tersimpan di proyek ini, jadi kalau ada revisi denah tinggal ganti angka yang berubah
+      lalu hitung ulang. Angka hasil hitungan tetap boleh dibetulkan manual di Daftar Angka Acuan
+      setelah diterapkan.
     </div>
   </div>
 </div>
@@ -579,6 +626,7 @@ function proyekBaru(nama,kosong){
     info:{namaProyek:nama||'Proyek Baru',lokasi:'',nomor:'',owner:'',pelaksana:'',kota:'Surabaya',
           tanggal:new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})},
     ukuran: ukuranDefault(), acuan: acuanDefault(), atap: atapDefault(), gambar: [],
+    dibuat: Date.now(), diubah: Date.now(), kunci: false, cepat: cepatDefault(),
     bab: kosong? [{id:uid('b'),kode:'I',judul:'PEK. PERSIAPAN',items:[]}] : dariTemplate()};
 }
 /* ---- pemutakhiran proyek lama ke aturan baru (versi 2026-11-04-2) ---- */
@@ -617,10 +665,15 @@ function load(){
     if(!pr.acuan ||!pr.acuan.length ) pr.acuan =acuanDefault();
     if(!pr.atap  ||!pr.atap.length  ) pr.atap  =atapDefault();
     if(!Array.isArray(pr.gambar)) pr.gambar=[];
+    if(!pr.dibuat) pr.dibuat=Date.now();
+    if(!pr.diubah) pr.diubah=pr.dibuat;
+    if(typeof pr.kunci!=='boolean') pr.kunci=false;
+    if(!pr.cepat) pr.cepat=cepatDefault();
     try{migrasi(pr);}catch(e){console.warn('migrasi dilewati',e);} });
   if(!DB.proyek[DB.aktif]) DB.aktif=Object.keys(DB.proyek)[0];
 }
-const save=()=>{try{localStorage.setItem(LS,JSON.stringify(DB));return true;}
+const save=()=>{try{const p=DB.proyek[DB.aktif]; if(p) p.diubah=Date.now();
+    localStorage.setItem(LS,JSON.stringify(DB));return true;}
   catch(e){ try{toast('Penyimpanan peramban PENUH — hapus sebagian gambar denah lalu ulangi');}catch(x){}
     return false; }};
 const besarSimpanan=()=>{try{return (localStorage.getItem(LS)||'').length;}catch(e){return 0;}};
@@ -1081,6 +1134,174 @@ function renderUkuran(){
     P().ukuran.splice(i,1); save(); render();
   }));
 }
+/* =================== ISIAN CEPAT DENAH =================== */
+const CEPAT=[
+ ['Ukuran Bangunan',[
+   ['P','Panjang bangunan (m)',10,'sisi terpanjang tapak, dari denah'],
+   ['L','Lebar bangunan (m)',10,'sisi satunya'],
+   ['lt','Jumlah lantai',2,'1 atau 2']]],
+ ['Kamar',[
+   ['n1','Jumlah kamar lantai 1',4,''],
+   ['d1','Jumlah deret kamar lantai 1',2,'berapa banjar/baris kamar'],
+   ['n2','Jumlah kamar lantai 2',6,'kosongkan 0 kalau 1 lantai'],
+   ['d2','Jumlah deret kamar lantai 2',2,''],
+   ['pk','Panjang kamar rata-rata (m)',3.34,''],
+   ['lk','Lebar kamar rata-rata (m)',3.30,'']]],
+ ['Kamar Mandi (dalam kamar)',[
+   ['pm','Panjang KM (m)',1.30,''],
+   ['lm','Lebar KM (m)',1.20,'']]],
+ ['Selasar / Teras / Balkon',[
+   ['kp','Panjang selasar (m)',10,'selasar depan deret kamar'],
+   ['kl','Lebar selasar (m)',1.00,''],
+   ['ts','Teras/balkon tambahan (m2)',14.70,'teras melintang, balkon, bordes']]],
+ ['Dinding',[
+   ['t1','Tinggi dinding lantai 1 (m)',3.00,''],
+   ['t2','Tinggi dinding lantai 2 (m)',3.30,''],
+   ['x1','Dinding lain lantai 1 (m1)',18.00,'tangga, parkir, sekat di luar kamar'],
+   ['x2','Dinding lain lantai 2 (m1)',10.00,'']]],
+ ['Lain-lain',[
+   ['vd','Luas void / tanpa dak (m2)',15.00,'lubang tangga + ruang terbuka di atas parkir'],
+   ['nk','Jumlah titik kolom',22,'hitung pertemuan garis dinding di denah']]],
+ ['Atap',[
+   ['tr','Tritisan tiap sisi (m)',0.30,''],
+   ['dg','Kemiringan atap (derajat)',35,'0 kalau atap datar']]]
+];
+const cepatDefault=()=>{const o={}; CEPAT.forEach(([g,f])=>f.forEach(([k,l,v])=>o[k]=v)); return o;};
+function hitungCepat(c){
+  const z=v=>{const x=Number(String(v===undefined?'':v).replace(',','.')); return isFinite(x)?x:0;};
+  const P=z(c.P),L=z(c.L),lt=z(c.lt)||1,n1=z(c.n1),n2=(lt>=2?z(c.n2):0),
+        d1=Math.max(1,z(c.d1)),d2=Math.max(1,z(c.d2)),pk=z(c.pk),lk=z(c.lk),
+        pm=z(c.pm),lm=z(c.lm),kp=z(c.kp),kl=z(c.kl),ts=z(c.ts),
+        t1=z(c.t1),t2=z(c.t2),x1=z(c.x1),x2=z(c.x2),vd=z(c.vd),nk=z(c.nk),
+        tr=z(c.tr),dg=z(c.dg);
+  const nKam=n1+n2, kel=2*(P+L), tapak=P*L;
+  const km1=n1*(pm+lm), km2=n2*(pm+lm);
+  const sek1=Math.max(0,n1-d1)*lk, sek2=Math.max(0,n2-d2)*lk;
+  const D1=kel+kp+sek1+km1+x1;
+  const D2=lt>=2 ? kel+kp+sek2+km2+x2 : 0;
+  const sloof=Math.max(0,D1-km1);
+  // pembagian memanjang/melebar: pakai perbandingan yang SUDAH ada di proyek
+  // (sekali dibetulkan dari denah, revisi berikutnya ikut perbandingan itu)
+  const a4=acById('A4'), a5=acById('A5');
+  const l4=Number(a4&&a4.v)||0, l5=Number(a5&&a5.v)||0, lt45=l4+l5;
+  const bagi = lt45>0 ? l4/lt45 : 0.5;
+  const sMem=sloof*bagi, sMel=sloof-sMem;
+  const dak=lt>=2 ? Math.max(0,tapak-vd) : 0;
+  const teras=kp*kl*(lt>=2?2:1)+ts;
+  const tKol=t1+(lt>=2?t2:0)+0.40;
+  const R=[];
+  const T=(id,nilai,rumus)=>R.push({id,nilai,rumus});
+  T('A1', kel,    `2 x (${P} + ${L})`);
+  T('A2', D1,     `keliling ${kel.toFixed(2)} + selasar ${kp.toFixed(2)} + sekat ${sek1.toFixed(2)} + KM ${km1.toFixed(2)} + lain ${x1.toFixed(2)}`);
+  T('A3', D2,     lt>=2 ? `keliling ${kel.toFixed(2)} + selasar ${kp.toFixed(2)} + sekat ${sek2.toFixed(2)} + KM ${km2.toFixed(2)} + lain ${x2.toFixed(2)}` : 'bangunan 1 lantai');
+  const ket45 = lt45>0
+    ? `total sloof ${sloof.toFixed(2)} m1, dibagi menurut perbandingan yang sudah Bapak pakai (${Math.round(bagi*100)}% : ${100-Math.round(bagi*100)}%)`
+    : `total sloof ${sloof.toFixed(2)} m1, dibagi rata 50:50 — betulkan dari denah`;
+  T('A4', sMem,   ket45);
+  T('A5', sMel,   ket45);
+  T('A7', tKol,   `${t1} + ${lt>=2?t2+' + ':''}0,40 (sloof & ring)`);
+  T('A21',tKol,   'sama dengan kolom tipe 1');
+  T('A22',t1+(lt>=2?t2:0), 'kolom praktis — setinggi dinding saja');
+  T('A8', tapak,  `${P} x ${L}`);
+  T('A9', dak,    lt>=2 ? `tapak ${tapak.toFixed(2)} - void ${vd.toFixed(2)}` : 'bangunan 1 lantai');
+  T('A11',nKam*pk*lk, `${nKam} kamar x ${pk} x ${lk}`);
+  T('A12',teras,  `selasar ${(kp*kl).toFixed(2)} x ${lt>=2?2:1} lantai + tambahan ${ts.toFixed(2)}`);
+  T('A34',2*(pm+lm), `2 x (${pm} + ${lm})`);
+  T('A30',nKam,   `${n1} + ${n2}`);
+  T('A31',nKam,   'satu KM tiap kamar');
+  T('A32',nk,     'dari isian');
+  return {baris:R, uk:{U8:t1,U9:t2}, atap:{p:P+2*tr,l:L+2*tr,deg:dg},
+          ringkas:{nKam,kel,D1,D2,sloof,tapak,dak,teras}};
+}
+function renderCepat(){
+  const w=document.getElementById('gCepat'); if(!w) return;
+  const pr=P(); if(!pr.cepat) pr.cepat=cepatDefault();
+  let h='';
+  CEPAT.forEach(([grup,isi])=>{
+    h+=`<div style="margin:0 0 12px"><div style="font-size:11.5px;font-weight:700;color:var(--accent);
+         text-transform:uppercase;letter-spacing:.04em;margin-bottom:7px">${grup}</div><div class="grid">`;
+    isi.forEach(([k,lab,def,ket])=>{
+      h+=`<div class="f"><label>${lab}</label>
+          <input type="text" inputmode="decimal" data-c="${k}" value="${tulis(pr.cepat[k])}">
+          ${ket?`<span style="font-size:10.5px;color:var(--muted)">${ket}</span>`:''}</div>`;});
+    h+='</div></div>';
+  });
+  w.innerHTML=h;
+  w.querySelectorAll('[data-c]').forEach(e=>e.addEventListener('input',()=>{
+    pr.cepat[e.dataset.c]=num(e.value); save();}));
+}
+function tampilHasilCepat(){
+  const pr=P(), hasil=hitungCepat(pr.cepat||cepatDefault());
+  const kotak=document.getElementById('hasilCepat');
+  let beda=0;
+  let h=`<table><thead><tr><th>Angka acuan</th><th class="num" style="width:110px">sekarang</th>
+    <th class="num" style="width:110px">hasil hitung</th><th style="width:40%">dari mana</th></tr></thead><tbody>`;
+  hasil.baris.forEach(b=>{
+    const a=acById(b.id); if(!a) return;
+    const lama=Number(a.v)||0, baru=Math.round(b.nilai*10000)/10000;
+    const ubah=Math.abs(lama-baru)>0.005; if(ubah) beda++;
+    h+=`<tr><td>${a.nama}</td>
+      <td class="num" style="color:var(--muted)">${tulis(lama)}</td>
+      <td class="num" style="font-weight:700;color:${ubah?'var(--accent)':'var(--muted)'}">${tulis(baru)}</td>
+      <td style="font-size:11px;color:var(--muted)">${b.rumus}</td></tr>`;
+  });
+  const u8=ukById('U8'), u9=ukById('U9');
+  h+=`<tr><td>${u8?u8.nama:'Tinggi Dinding Lantai 1'}</td><td class="num" style="color:var(--muted)">${tulis(u8?u8.h:'')}</td>
+      <td class="num" style="font-weight:700">${tulis(hasil.uk.U8)}</td><td style="font-size:11px;color:var(--muted)">dari isian</td></tr>`;
+  h+=`<tr><td>${u9?u9.nama:'Tinggi Dinding Lantai 2'}</td><td class="num" style="color:var(--muted)">${tulis(u9?u9.h:'')}</td>
+      <td class="num" style="font-weight:700">${tulis(hasil.uk.U9)}</td><td style="font-size:11px;color:var(--muted)">dari isian</td></tr>`;
+  const b0=(pr.atap||[])[0]||{};
+  h+=`<tr><td>Bidang atap utama (p x l x derajat)</td>
+      <td class="num" style="color:var(--muted)">${tulis(b0.p)} x ${tulis(b0.l)} x ${tulis(b0.deg)}&deg;</td>
+      <td class="num" style="font-weight:700">${tulis(hasil.atap.p)} x ${tulis(hasil.atap.l)} x ${tulis(hasil.atap.deg)}&deg;</td>
+      <td style="font-size:11px;color:var(--muted)">bangunan + tritisan tiap sisi</td></tr>`;
+  h+='</tbody></table>';
+  h+=`<div style="margin-top:11px;display:flex;gap:9px;align-items:center;flex-wrap:wrap">
+      <button class="primary" id="bCepatTerap">Terapkan ke Proyek Ini</button>
+      <span style="font-size:12px;color:var(--muted)">${beda} angka akan berubah</span></div>`;
+  h+=`<div class="note" style="padding:10px 0 0">
+      <b>Yang perlu diperiksa:</b> total sloof ${tulis(Math.round(hasil.ringkas.sloof*100)/100)} m&sup1;
+      sudah benar, tapi pembagian <i>memanjang</i> : <i>melebar</i> mengikuti perbandingan yang sekarang
+      dipakai di proyek ini. Kalau denahnya berubah bentuk, betulkan sekali di Daftar Angka Acuan —
+      revisi berikutnya akan ikut perbandingan yang baru itu.<br>
+      Jumlah titik kolom dan dinding lain-lain diambil apa adanya dari isian, bukan dihitung.</div>`;
+  kotak.innerHTML=h;
+  document.getElementById('bCepatTerap').addEventListener('click',()=>{
+    if(P().kunci){toast('Proyek terkunci — buka kuncinya dulu');return;}
+    if(!confirm('Terapkan '+beda+' angka hasil hitungan ke Daftar Angka Acuan?\n\n'+
+                'Angka acuan yang sekarang akan ditimpa. Semuanya masih bisa dibetulkan manual setelah ini.'))return;
+    hasil.baris.forEach(b=>{const a=acById(b.id); if(a) a.v=Math.round(b.nilai*10000)/10000;});
+    const u8=ukById('U8'), u9=ukById('U9');
+    if(u8) u8.h=hasil.uk.U8; if(u9) u9.h=hasil.uk.U9;
+    if(P().atap&&P().atap[0]){P().atap[0].p=hasil.atap.p;P().atap[0].l=hasil.atap.l;P().atap[0].deg=hasil.atap.deg;}
+    save(); render(); terapkanKunci(); tampilHasilCepat();
+    toast('Diterapkan — periksa Daftar Angka Acuan');
+  });
+}
+
+/* =================== KUNCI PROYEK =================== */
+const tglPendek=t=>{ if(!t) return '—';
+  try{return new Date(t).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'2-digit'});}
+  catch(e){return '—';} };
+function terapkanKunci(){
+  const kunci=!!(P()&&P().kunci);
+  document.querySelectorAll('.card').forEach(c=>{
+    if(c.id==='cDaftar') return;
+    c.classList.toggle('terkunci',kunci);});
+  const pita=document.getElementById('pitaKunci');
+  if(pita) pita.style.display=kunci?'':'none';
+  const b=document.getElementById('bKunci');
+  if(b) b.textContent=kunci?'🔓 Buka Kunci':'🔒 Kunci';
+}
+function gantiKunci(id,mau){
+  const pr=DB.proyek[id]; if(!pr) return;
+  if(mau && !confirm('Kunci proyek "'+pr.nama+'"?\n\nSetelah dikunci, angka, harga, dan gambarnya '+
+     'tidak bisa diubah sampai dibuka lagi. Berguna untuk menyimpan RAB yang sudah disepakati.')) return;
+  pr.kunci=mau; save();
+  renderGambar(); renderCepat(); document.getElementById('hasilCepat').innerHTML=''; renderDaftarProyek(); render(); terapkanKunci();
+  toast(mau?'Proyek dikunci':'Kunci dibuka');
+}
+
 /* =================== DENAH & GAMBAR KERJA =================== */
 const MAKS_PX=1400, MUTU=0.75;
 function kecilkanGambar(file){
@@ -1112,6 +1333,7 @@ function bacaMentah(file){
 const besarData=d=>Math.round((String(d).length-(String(d).indexOf(',')+1))*0.75);
 async function tambahGambar(files){
   const pr=P(); let masuk=0;
+  if(pr.kunci){ toast('Proyek terkunci — buka kuncinya dulu'); return; }
   for(const f of files){
     try{
       let g;
@@ -1182,33 +1404,39 @@ function renderDaftarProyek(){
     const tr=document.createElement('tr');
     if(id===DB.aktif) tr.style.background='var(--warn)';
     const ng=(p.gambar||[]).length;
-    tr.innerHTML=`<td><b>${(p.nama||'(tanpa nama)')}</b>${id===DB.aktif?' <span style="color:var(--accent);font-size:11px">• dibuka</span>':''}</td>
+    tr.innerHTML=`<td><b>${(p.nama||'(tanpa nama)')}</b>${p.kunci?' 🔒':''}${
+        id===DB.aktif?' <span style="color:var(--accent);font-size:11px">• dibuka</span>':''}</td>
       <td style="font-size:12px;color:var(--muted)">${(p.info&&p.info.lokasi)||'—'}</td>
       <td class="c">${ng?ng+' berkas':'—'}</td>
+      <td class="c" style="font-size:11.5px;color:var(--muted)">${tglPendek(p.diubah)}</td>
       <td class="num">${Math.round(totalProyek(id)).toLocaleString('id-ID')}</td>
       <td class="c noprint">
         <button class="mini" data-pbuka="${id}">Buka</button>
         <button class="mini" data-pnama="${id}">Ganti Nama</button>
+        <button class="mini" data-pkunci="${id}">${p.kunci?'Buka Kunci':'Kunci'}</button>
         <button class="mini" data-pdel="${id}">Hapus</button></td>`;
     tb.appendChild(tr);
   });
   document.getElementById('infoSimpanan').textContent='terpakai '+tulisMB(besarSimpanan());
   tb.querySelectorAll('[data-pbuka]').forEach(b=>b.addEventListener('click',()=>{
     DB.aktif=b.dataset.pbuka; buka=null; save();
-    renderProyek(); renderIdent(); renderGambar(); renderDaftarProyek(); render();
+    renderProyek(); renderIdent(); renderGambar(); renderCepat(); document.getElementById('hasilCepat').innerHTML=''; renderDaftarProyek(); render(); terapkanKunci();
     toast('Proyek dibuka'); window.scrollTo({top:0,behavior:'smooth'});}));
   tb.querySelectorAll('[data-pnama]').forEach(b=>b.addEventListener('click',()=>{
     const p=DB.proyek[b.dataset.pnama];
     const nm=prompt('Nama proyek:',p.nama); if(!nm)return;
     p.nama=nm; p.info.namaProyek=nm; save();
     renderProyek(); renderIdent(); renderDaftarProyek(); toast('Nama diganti');}));
+  tb.querySelectorAll('[data-pkunci]').forEach(b=>b.addEventListener('click',()=>
+    gantiKunci(b.dataset.pkunci,!DB.proyek[b.dataset.pkunci].kunci)));
   tb.querySelectorAll('[data-pdel]').forEach(b=>b.addEventListener('click',()=>{
     const id=b.dataset.pdel;
+    if(DB.proyek[id].kunci){toast('Proyek terkunci — buka kuncinya dulu');return;}
     if(Object.keys(DB.proyek).length<2){toast('Minimal satu proyek');return;}
     if(!confirm('Hapus proyek "'+DB.proyek[id].nama+'" beserta gambarnya?'))return;
     delete DB.proyek[id];
     if(DB.aktif===id){DB.aktif=Object.keys(DB.proyek)[0]; buka=null;}
-    save(); renderProyek(); renderIdent(); renderGambar(); renderDaftarProyek(); render();
+    save(); renderProyek(); renderIdent(); renderGambar(); renderCepat(); document.getElementById('hasilCepat').innerHTML=''; renderDaftarProyek(); render(); terapkanKunci();
     toast('Proyek dihapus');}));
 }
 function renderProyek(){
@@ -1318,12 +1546,25 @@ function unduh(nama,isi,tipe){
 /* =================== EVENT =================== */
 document.getElementById('proyek').addEventListener('change',e=>{
   DB.aktif=e.target.value; buka=null; save();
-  renderIdent(); renderGambar(); renderDaftarProyek(); render();});
+  renderIdent(); renderGambar(); renderCepat(); document.getElementById('hasilCepat').innerHTML=''; renderDaftarProyek(); render(); terapkanKunci();});
 document.getElementById('bDaftar').addEventListener('click',()=>{
   const c=document.getElementById('cDaftar');
   const tampil=(c.style.display==='none');
   c.style.display=tampil?'':'none';
   if(tampil){ renderDaftarProyek(); c.scrollIntoView({behavior:'smooth',block:'start'}); }});
+document.getElementById('bCepat').addEventListener('click',()=>{
+  const c=document.getElementById('cCepat');
+  const tampil=(c.style.display==='none');
+  c.style.display=tampil?'':'none';
+  if(tampil){ renderCepat(); terapkanKunci(); c.scrollIntoView({behavior:'smooth',block:'start'}); }});
+document.getElementById('bCepatHitung').addEventListener('click',tampilHasilCepat);
+document.getElementById('bCepatHitung2').addEventListener('click',tampilHasilCepat);
+document.getElementById('bKunci').addEventListener('click',()=>gantiKunci(DB.aktif,!P().kunci));
+document.getElementById('bBukaKunci').addEventListener('click',()=>gantiKunci(DB.aktif,false));
+document.getElementById('verBadge').addEventListener('click',()=>{
+  const p=P();
+  toast('MRD versi '+VERSI_APP+' · proyek "'+p.nama+'" diubah '+tglPendek(p.diubah)+
+        ' · penyimpanan '+tulisMB(besarSimpanan()));});
 document.getElementById('bGbrAdd').addEventListener('click',()=>document.getElementById('fGbr').click());
 document.getElementById('fGbr').addEventListener('change',e=>{
   const f=[...e.target.files]; e.target.value='';
@@ -1337,23 +1578,23 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape')
 document.getElementById('bBaru').addEventListener('click',()=>{
   const n=prompt('Nama proyek baru (pakai cetakan kost 2 lantai):','Proyek Baru'); if(!n)return;
   const id=uid('p'); DB.proyek[id]=proyekBaru(n); DB.aktif=id; buka=null;
-  save(); renderProyek(); renderIdent(); renderGambar(); renderDaftarProyek(); render(); toast('Dibuat dari cetakan');});
+  save(); renderProyek(); renderIdent(); renderGambar(); renderCepat(); document.getElementById('hasilCepat').innerHTML=''; renderDaftarProyek(); render(); terapkanKunci(); toast('Dibuat dari cetakan');});
 document.getElementById('bKosong').addEventListener('click',()=>{
   const n=prompt('Nama proyek baru (mulai dari kosong):','Proyek Kosong'); if(!n)return;
   const id=uid('p'); DB.proyek[id]=proyekBaru(n,true); DB.aktif=id; buka=null;
-  save(); renderProyek(); renderIdent(); renderGambar(); renderDaftarProyek(); render(); toast('Proyek kosong dibuat');});
+  save(); renderProyek(); renderIdent(); renderGambar(); renderCepat(); document.getElementById('hasilCepat').innerHTML=''; renderDaftarProyek(); render(); terapkanKunci(); toast('Proyek kosong dibuat');});
 document.getElementById('bSalin').addEventListener('click',()=>{
   const n=prompt('Nama salinan:',P().nama+' (salinan)'); if(!n)return;
   const id=uid('p'), c=JSON.parse(JSON.stringify(P())), peta={};
   c.bab.forEach(b=>{b.id=uid('b');b.items.forEach(it=>{const ni=uid('i');peta[it.id]=ni;it.id=ni;});});
   c.bab.forEach(b=>b.items.forEach(it=>it.komp.forEach(k=>{if(k.ref&&peta[k.ref])k.ref=peta[k.ref];})));
   c.nama=n; c.info.namaProyek=n; DB.proyek[id]=c; DB.aktif=id; buka=null;
-  save(); renderProyek(); renderIdent(); renderGambar(); renderDaftarProyek(); render(); toast('Disalin');});
+  save(); renderProyek(); renderIdent(); renderGambar(); renderCepat(); document.getElementById('hasilCepat').innerHTML=''; renderDaftarProyek(); render(); terapkanKunci(); toast('Disalin');});
 document.getElementById('bHapus').addEventListener('click',()=>{
   if(Object.keys(DB.proyek).length<2){toast('Minimal satu proyek');return;}
   if(!confirm('Hapus proyek "'+P().nama+'"?'))return;
   delete DB.proyek[DB.aktif]; DB.aktif=Object.keys(DB.proyek)[0]; buka=null;
-  save(); renderProyek(); renderIdent(); renderGambar(); renderDaftarProyek(); render(); toast('Dihapus');});
+  save(); renderProyek(); renderIdent(); renderGambar(); renderCepat(); document.getElementById('hasilCepat').innerHTML=''; renderDaftarProyek(); render(); terapkanKunci(); toast('Dihapus');});
 document.getElementById('bAtapAdd').addEventListener('click',()=>{
   const n=prompt('Nama bidang atap:','Bidang atap teras'); if(!n)return;
   P().atap.push({id:uid('T'),nama:n,p:0,l:0,deg:35}); save(); render();
@@ -1393,17 +1634,17 @@ document.getElementById('fImp').addEventListener('change',e=>{
   r.onload=()=>{try{const d=JSON.parse(r.result); if(!d.proyek) throw 0;
       Object.assign(DB.proyek,d.proyek);
       DB.aktif=(d.aktif&&DB.proyek[d.aktif])?d.aktif:DB.aktif; buka=null;
-      save(); renderProyek(); renderIdent(); renderGambar(); renderDaftarProyek(); render(); toast('Cadangan dipulihkan');
+      save(); renderProyek(); renderIdent(); renderGambar(); renderCepat(); document.getElementById('hasilCepat').innerHTML=''; renderDaftarProyek(); render(); terapkanKunci(); toast('Cadangan dipulihkan');
     }catch(x){toast('Berkas cadangan tidak dikenali');}};
   r.readAsText(f); e.target.value='';});
 
 /* =================== MULAI =================== */
-const VERSI_APP='2026-11-05-1';     // <-- NAIKKAN bersamaan dengan VERSI di sw.js
-document.getElementById('versiApp').textContent='versi '+VERSI_APP;
+const VERSI_APP='2026-11-05-3';     // <-- NAIKKAN bersamaan dengan VERSI di sw.js
+document.getElementById('verBadge').textContent='versi '+VERSI_APP;
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 }
-load(); renderProyek(); renderIdent(); renderGambar(); renderDaftarProyek(); render();
+load(); renderProyek(); renderIdent(); renderGambar(); renderCepat(); document.getElementById('hasilCepat').innerHTML=''; renderDaftarProyek(); render(); terapkanKunci();
 </script>
 </body>
 </html>
