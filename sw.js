@@ -2,7 +2,7 @@
    Strategi: JARINGAN DULU, simpanan sebagai cadangan.
    Dengan cara ini versi baru langsung terpakai begitu online — tidak ada
    batang "versi baru tersedia" yang nyangkut seperti di TITEN. */
-const VERSI = '2026-11-04-1';          // <-- NAIKKAN tiap kali index.html diubah
+const VERSI = '2026-11-05-1';          // <-- NAIKKAN tiap kali index.html diubah
 const SIMPANAN = 'rab-mrd-' + VERSI;
 const BERKAS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png',
                 './icon-maskable-512.png', './logo.png'];
