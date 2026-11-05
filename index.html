@@ -41,6 +41,17 @@ select,input{background:var(--panel);border:1px solid var(--line);border-radius:
   display:flex;justify-content:space-between;align-items:center;gap:8px}
 .card .body{padding:12px 14px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px 14px}
+.gbrGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}
+.gbrK{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff;display:flex;flex-direction:column}
+.gbrT{height:120px;background:#f1f1f0;display:flex;align-items:center;justify-content:center;cursor:zoom-in;overflow:hidden}
+.gbrT img{width:100%;height:100%;object-fit:cover}
+.gbrT .pdf{font-size:30px;color:var(--accent)}
+.gbrK .ket{padding:6px}.gbrK .ket input{width:100%;font-size:11.5px}
+.gbrK .bar{display:flex;gap:5px;padding:0 6px 7px}
+.gbrK .bar button{flex:1;font-size:11px;padding:4px 0}
+.lbox{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;z-index:99}
+.lbox.on{display:flex}.lbox img{max-width:96vw;max-height:92vh;object-fit:contain}
+.lbox .tutup{position:absolute;top:14px;right:18px;color:#fff;font-size:30px;cursor:pointer;line-height:1}
 .f{display:flex;flex-direction:column;gap:3px}.f label{font-size:11.5px;color:var(--muted)}
 .f input{width:100%}
 table{border-collapse:collapse;width:100%;font-size:12.5px}
@@ -88,7 +99,7 @@ tr.edit>td{background:var(--ok);padding:10px 8px 12px}
   .cetakOnly table{width:100%;border:none}
   .cetakOnly td{border:none;text-align:center;padding:4px;font-size:12px}
   .cetakOnly .nm2{height:58px}
-  body{background:#fff} header .row,.foot,.noprint,.card.ident,.fx{display:none!important}
+  body{background:#fff} header .row,.foot,.noprint,.card.ident,.fx,.noCetak{display:none!important}
   .tablewrap{max-height:none;overflow:visible} .card{border:none}
   thead th{background:#1f3864!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   tr.bab>td{background:#eee!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -115,15 +126,50 @@ tr.edit>td{background:var(--ok);padding:10px 8px 12px}
     <button id="bKosong">+ Kosong</button>
     <button id="bSalin">Duplikat</button>
     <button id="bHapus">Hapus</button>
+    <button id="bDaftar">☰ Daftar Proyek</button>
     <button id="bEks">⬇ Cadangan</button>
     <button id="bImp">⬆ Pulihkan</button>
     <input type="file" id="fImp" accept=".json" hidden>
   </div>
 </header>
 
+<div class="card noCetak" id="cDaftar" style="display:none">
+  <h2><span>Daftar Proyek</span>
+      <span class="noprint" style="font-weight:400;font-size:11.5px;color:var(--muted)"
+            id="infoSimpanan"></span></h2>
+  <div class="body">
+    <table><thead><tr>
+      <th>Nama proyek</th><th style="width:30%">Lokasi</th><th class="c" style="width:92px">Gambar</th>
+      <th class="num" style="width:150px">Total (Rp)</th><th class="c noprint" style="width:230px"></th>
+    </tr></thead><tbody id="tbProyek"></tbody></table>
+    <div class="note" style="padding:10px 0 0">
+      Tiap proyek menyimpan angka acuan, ukuran, harga, dan gambar denahnya sendiri.
+      <b>Duplikat</b> dipakai kalau proyek baru mirip proyek lama — tinggal ganti angka denahnya.
+      Tekan <b>⬇ Cadangan</b> berkala: satu berkas JSON berisi SEMUA proyek beserta gambarnya.
+    </div>
+  </div>
+</div>
+
 <div class="card ident">
   <h2>Identitas Proyek</h2>
   <div class="body"><div class="grid" id="gIdent"></div></div>
+</div>
+
+<div class="card noCetak" id="cGambar">
+  <h2><span>Denah &amp; Gambar Kerja &nbsp;<span style="font-weight:400;color:var(--muted);font-size:12px"
+        id="infoGbr"></span></span>
+      <span class="noprint"><button class="mini" id="bGbrAdd">+ Tambah Gambar</button></span></h2>
+  <div class="body">
+    <input type="file" id="fGbr" accept="image/*,application/pdf" multiple hidden>
+    <div id="gridGbr" class="gbrGrid"></div>
+    <div class="note" style="padding:10px 0 0">
+      Foto atau hasil pindai denah disimpan di dalam proyek ini — ikut terbawa saat
+      <b>Duplikat</b> dan saat <b>Cadangan</b>.
+      Gambar otomatis diperkecil (sisi terpanjang 1400 piksel) supaya tidak memberatkan penyimpanan;
+      aslinya tetap ada di komputer Bapak. Berkas PDF disimpan apa adanya, jadi pakai PDF yang kecil saja.
+      Klik gambar untuk melihat besar.
+    </div>
+  </div>
 </div>
 
 <div class="card" id="cAcuan">
@@ -214,7 +260,7 @@ tr.edit>td{background:var(--ok);padding:10px 8px 12px}
       <button id="bCopy">⧉ Salin ke Excel</button>
       <button id="bPrint">🖨 Cetak</button>
       <label style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px">
-        <input type="checkbox" id="cbUraian" checked style="width:auto"> sertakan uraian volume
+        <input type="checkbox" id="cbUraian" checked style="width:auto"> tampilkan uraian volume di layar &amp; cetak
       </label>
       <label style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px">
         <input type="checkbox" id="cbNol" checked style="width:auto"> sembunyikan baris bervolume 0
@@ -239,12 +285,41 @@ tr.edit>td{background:var(--ok);padding:10px 8px 12px}
   </div>
 </div>
 
+<div class="card noCetak">
+  <h2>Yang Masih Perkiraan — perlu dipastikan</h2>
+  <div class="body" style="font-size:12.5px;line-height:1.75">
+    <p style="margin:0 0 9px">Angka di bawah ini <b>belum dipastikan</b>. Selama masih di sini, total RAB
+    boleh dipakai untuk gambaran, tapi jangan dijadikan lampiran kontrak.</p>
+    <table><tbody>
+      <tr><td style="width:30%"><b>Harga cat EXTERIOR</b></td>
+          <td>Masih disamakan dengan cat interior (Rp 30.000/m²). Cat luar + aquaproof biasanya lebih mahal
+              — isi harga sendiri di baris <i>Pengecatan Dinding EXTERIOR</i>.</td></tr>
+      <tr><td><b>Harga talang beton</b></td>
+          <td>Masih disamakan dengan balok/dak (Rp 4.500.000/m³). Isi harga sendiri di baris
+              <i>Pelat Talang</i> dan <i>Balok Talang</i>.</td></tr>
+      <tr><td><b>Tinggi kolom 6,70 m</b></td>
+          <td>Dihitung dari sloof sampai ring balok: 3,00 (lt.1) + 3,30 (lt.2) + 0,40 (sloof/ring).
+              Kolom praktis dipakai 6,30 m. Cocokkan dengan tukang.</td></tr>
+      <tr><td><b>Jumlah titik kolom 22</b></td>
+          <td>Dihitung dari pertemuan garis dinding di denah. Kolom Tipe 2 (12) dan Kolom Praktis (14)
+              masih angka RAB lama — perlu dicek ke gambar kerja.</td></tr>
+      <tr><td><b>Panjang pipa</b></td>
+          <td>Air bersih 95 m¹, talang 45 m¹, kotor 3&quot; 50 m¹, kotor 4&quot; 25 m¹ — semua masih kira-kira.</td></tr>
+      <tr><td><b>Benangan 263,60 m¹</b></td>
+          <td>143,60 m¹ keliling bukaan (terhitung) + 120 m¹ sudut dinding (perkiraan).</td></tr>
+    </tbody></table>
+    <p style="margin:10px 0 0;color:var(--muted)">Angka dinding, sloof, luas kamar, dak, dan teras sudah
+    dihitung ulang dari denah 10 kamar yang terakhir — bukan perkiraan lagi.</p>
+  </div>
+</div>
+
 <div class="cetakOnly" id="ttd"></div>
 
 <div class="note" style="text-align:center;padding-bottom:26px">
   Data tersimpan di peramban perangkat ini. Tekan <b>Cadangan</b> berkala untuk menyimpan berkas JSON.
 </div>
 </div>
+<div class="lbox" id="lbox"><span class="tutup" id="lboxTutup">&times;</span><img id="lboxImg" alt=""></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -255,10 +330,10 @@ const T = [
   ['Pengukuran, Bowplank & Persiapan','ls',1000000,[['lump sum',1,1,'','','']]],
 ]],
 ['II','PEK. TANAH',[
-  ['Pek. Galian Tanah','m³',150000,[['galian plat sepatu',1,16,0.80,0.80,0.50]]],
+  ['Pek. Galian Tanah','m³',150000,[['galian plat sepatu',1,22,0.80,0.80,0.50,'','','','','A32']]],
   ['Urugan Sirtu t=10 cm','m³',175000,[['luas lantai dasar × tebal',1,1,'','',0.10,'','','A8']]],
   ['Bor Strauss Ø30','m¹',70000,[
-     ['kelompok 1 — jumlah titik × kedalaman',1,16,3.50,'',''],
+     ['kelompok 1 — jumlah titik × kedalaman',1,22,3.50,'','','','','','','A32'],
      ['kelompok 2 — tambah baris bila kedalaman beda',1,'','','',''],
      ['kelompok 3 — tambah baris bila kedalaman beda',1,'','','','']]],
 ]],
@@ -266,7 +341,7 @@ const T = [
   ['Pek. Beton Strauss Ø30','m³',3000000,[
      ['total m¹ bor × luas penampang',1,1,'','','','II/2','','A15']]],
   ['Pek. Beton Plat Sepatu Tipe 1','m³',3750000,[
-     ['jumlah titik × panjang × lebar × tebal',1,16,0.60,0.60,0.25]]],
+     ['jumlah titik × panjang × lebar × tebal',1,22,0.60,0.60,0.25,'','','','','A32']]],
   ['Pek. Beton Plat Sepatu Tipe 2','m³',3750000,[
      ['jumlah titik × panjang × lebar × tebal',1,0,0.50,0.50,0.25]]],
   ['Pek. Beton Plat Sepatu Tipe 3','m³',3750000,[
@@ -278,7 +353,7 @@ const T = [
   ['Pek. Beton Sloof Tambahan {ukuran}','m³',3750000,[
      ['panjang × lebar × tinggi',1,1,'','','','','U17','A19']]],
   ['Pek. Beton Kolom Tipe 1 {ukuran} (K1)','m³',4000000,[
-     ['jumlah titik × panjang kolom × penampang',1,16,'','','','','U3','A7']]],
+     ['jumlah titik × panjang kolom × penampang',1,22,'','','','','U3','A7','','A32']]],
   ['Pek. Beton Kolom Tipe 2 {ukuran} (K2)','m³',3750000,[
      ['jumlah titik × panjang kolom × penampang',1,12,'','','','','U4','A21']]],
   ['Pek. Beton Kolom Tipe 3 {ukuran} (KP)','m³',3000000,[
@@ -315,9 +390,9 @@ const T = [
   ['Pasangan Bata Ringan (Hebel)','m²',125000,[
      ['dinding lantai 1',1,1,'','','','','U8','A2'],
      ['dinding lantai 2',1,1,'','','','','U9','A3'],
-     ['pintu kamar',-1,10,'','','','','U11'],
-     ['pintu kamar mandi',-1,10,'','','','','U12'],
-     ['jendela',-1,10,'','','','','U13']]],
+     ['pintu kamar',-1,10,'','','','','U11','','','A30'],
+     ['pintu kamar mandi',-1,10,'','','','','U12','','','A31'],
+     ['jendela',-1,10,'','','','','U13','','','A30']]],
   ['Plesteran','m²',65000,[
      ['luas pasangan bata × 2 sisi',1,2,'','','','IV/0'],
      ['PENGURANGAN sisi luar tanpa finishing — lt.1',-1,1,'','','','','U8','A13'],
@@ -329,8 +404,7 @@ const T = [
   ['Pas. Rangka Gording Galvalum C 0,75','m²',150000,[['luas bidang atap',1,1,'','','','','','A10']]],
   ['Pas. Atap uPVC Single Layer','m²',120000,[['mengikuti luas rangka',1,1,'','','','V/0']]],
   ['Pas. Plafon Gypsum (hanya kamar)','m²',100000,[
-     ['kamar 4,00 × 3,40',1,4,4.00,3.40,''],
-     ['kamar 4,00 × 3,30',1,6,4.00,3.30,'']]],
+     ['seluruh luas kamar',1,1,'','','','','','A11']]],
   ['Pas. List Shadow Line','m¹',0,[]],
   ['Pas. Lisplank Kalsiboard','m¹',75000,[]],
 ]],
@@ -341,17 +415,18 @@ const T = [
      ['teras / selasar / balkon',1,1,'','','','','','A12']]],
   ['Pek. Plint Lantai','m¹',30000,[]],
   ['Pek. Keramik Tangga','m²',325000,[['anak tangga + bordes',1,1,12.14,'','']]],
-  ['Pek. Keramik Dinding KM t=1,80 m','m²',240000,[['KM × keliling 5,20 m × tinggi keramik',1,10,5.20,'','','','U10']]],
+  ['Pek. Keramik Dinding KM t=1,80 m','m²',240000,[
+     ['jumlah KM × keliling KM × tinggi keramik',1,10,'','','','','U10','A34','','A31']]],
 ]],
 ['VII','PEK. KUSEN / PINTU / JENDELA',[
   ['Kusen Pintu & Jendela Aluminium','m¹',100000,[
-     ['kusen pintu 0,89 + 2×2,14',1,10,5.17,'',''],
-     ['kusen jendela 2×(0,50+1,00)',1,10,3.00,'','']]],
-  ['Daun Jendela Casement + Kaca 5 mm','bh',900000,[['jumlah jendela',1,10,'','','']]],
-  ['Daun Pintu Angzdoor + Setel','bh',800000,[['jumlah kamar',1,10,'','','']]],
-  ['Pintu PVC Kamar Mandi','bh',400000,[['jumlah KM',1,10,'','','']]],
-  ['Engsel Pintu Stainless 4"','set',70000,[['jumlah pintu kamar',1,10,'','','']]],
-  ['Kunci Pintu','bh',200000,[['jumlah pintu kamar',1,10,'','','']]],
+     ['kusen pintu 0,89 + 2×2,14',1,10,5.17,'','','','','','','A30'],
+     ['kusen jendela 2×(0,50+1,00)',1,10,3.00,'','','','','','','A30']]],
+  ['Daun Jendela Casement + Kaca 5 mm','bh',900000,[['jumlah jendela',1,10,'','','','','','','','A30']]],
+  ['Daun Pintu Angzdoor + Setel','bh',800000,[['jumlah kamar',1,10,'','','','','','','','A30']]],
+  ['Pintu PVC Kamar Mandi','bh',400000,[['jumlah KM',1,10,'','','','','','','','A31']]],
+  ['Engsel Pintu Stainless 4"','set',70000,[['jumlah pintu kamar',1,10,'','','','','','','','A30']]],
+  ['Kunci Pintu','bh',200000,[['jumlah pintu kamar',1,10,'','','','','','','','A30']]],
 ]],
 ['VIII','PEK. CAT & PELAPIS DINDING',[
   ['Pengecatan Dinding INTERIOR (dalam)','m²',30000,[
@@ -374,9 +449,9 @@ const T = [
   ['Pipa Air Kotor 2½" (talang)','m¹',50000,[['perkiraan jalur',1,1,45.00,'','']]],
   ['Pipa Air Kotor 3"','m¹',65000,[['perkiraan jalur',1,1,50.00,'','']]],
   ['Pipa Air Kotor 4"','m¹',75000,[['perkiraan jalur',1,1,25.00,'','']]],
-  ['Kloset Duduk','bh',700000,[['1 per KM',1,10,'','','']]],
-  ['Kran Kamar Mandi','bh',75000,[['1 per KM',1,10,'','','']]],
-  ['Avur Lantai KM','set',15000,[['1 per KM',1,10,'','','']]],
+  ['Kloset Duduk','bh',700000,[['1 per KM',1,10,'','','','','','','','A31']]],
+  ['Kran Kamar Mandi','bh',75000,[['1 per KM',1,10,'','','','','','','','A31']]],
+  ['Avur Lantai KM','set',15000,[['1 per KM',1,10,'','','','','','','','A31']]],
   ['Bak Kontrol','bh',75000,[['',1,12,'','','']]],
   ['Septictank + Resapan','bh',3500000,[['',1,1,'','','']]],
   ['Tandon Bawah','bh',3500000,[['jumlah unit',1,'','','','']]],
@@ -384,12 +459,14 @@ const T = [
 ]],
 ['X','PEK. INSTALASI LISTRIK',[
   ['Inst. Titik Lampu (tanpa lampu)','ttk',225000,[
-     ['kamar',1,10,'','',''],['kamar mandi',1,10,'','',''],['area umum',1,8,'','','']]],
-  ['Inst. Titik Stop Kontak','ttk',250000,[['2 per kamar',1,10,2,'','']]],
-  ['Inst. Stop Kontak AC + Pembuangan','ttk',350000,[['1 per kamar',1,10,'','','']]],
+     ['kamar',1,10,'','','','','','','','A30'],
+     ['kamar mandi',1,10,'','','','','','','','A31'],
+     ['area umum',1,8,'','','','','','','','A33']]],
+  ['Inst. Titik Stop Kontak','ttk',250000,[['2 per kamar',1,10,2,'','','','','','','A30']]],
+  ['Inst. Stop Kontak AC + Pembuangan','ttk',350000,[['1 per kamar',1,10,'','','','','','','','A30']]],
   ['Inst. Box MCB Lantai 1','box',750000,[['',1,1,'','','']]],
   ['Inst. Box MCB Lantai 2','box',600000,[['',1,1,'','','']]],
-  ['Instalasi Kabel Power Meteran ke Box MCB','ttk',300000,[['meteran sendiri tiap kamar',1,10,'','','']]],
+  ['Instalasi Kabel Power Meteran ke Box MCB','ttk',300000,[['meteran sendiri tiap kamar',1,10,'','','','','','','','A30']]],
   ['Instalasi Grounding Panel','ttk',600000,[['',1,1,'','','']]],
 ]],
 ['XI','PEK. FINISHING',[
@@ -434,15 +511,15 @@ const GRUP=['Struktur','Talang','Dinding','Bukaan','Lainnya'];
 /* angka yang diambil langsung dari denah — diketik sekali, dipakai di mana-mana */
 const AC_DEF=[
   ['A1','Panjang','Keliling dinding LUAR saja (tepi bangunan)',40.00,'m¹'],
-  ['A2','Panjang','Panjang SELURUH dinding lantai 1 (luar + sekat)',86.80,'m¹','','U8'],
-  ['A3','Panjang','Panjang SELURUH dinding lantai 2 (luar + sekat)',91.60,'m¹','','U9'],
-  ['A4','Panjang','Panjang Sloof MEMANJANG',40.00,'m¹','','U1'],
-  ['A5','Panjang','Panjang Sloof MELEBAR',40.00,'m¹','','U2'],
+  ['A2','Panjang','Panjang SELURUH dinding lantai 1 (luar + sekat)',84.60,'m¹','','U8'],
+  ['A3','Panjang','Panjang SELURUH dinding lantai 2 (luar + sekat)',88.20,'m¹','','U9'],
+  ['A4','Panjang','Panjang Sloof MEMANJANG',39.00,'m¹','','U1'],
+  ['A5','Panjang','Panjang Sloof MELEBAR',35.60,'m¹','','U2'],
   ['A19','Panjang','Panjang Sloof Tambahan (Tipe 3)',0,'m¹','','U17'],
-  ['A7','Panjang','Panjang Kolom Tipe 1',7.00,'m¹','','U3'],
-  ['A21','Panjang','Panjang Kolom Tipe 2',7.00,'m¹','','U4'],
-  ['A22','Panjang','Panjang Kolom Tipe 3',7.00,'m¹','','U5'],
-  ['A23','Panjang','Panjang Kolom Tipe 4',0,'m¹','','U18'],
+  ['A7','Panjang','Tinggi 1 Kolom Tipe 1 (sloof→ring)',6.70,'m¹','','U3'],
+  ['A21','Panjang','Tinggi 1 Kolom Tipe 2 (sloof→ring)',6.70,'m¹','','U4'],
+  ['A22','Panjang','Tinggi 1 Kolom Praktis (lt.1 + lt.2)',6.30,'m¹','','U5'],
+  ['A23','Panjang','Tinggi 1 Kolom Tipe 4',0,'m¹','','U18'],
   ['A6','Panjang','Panjang Balok Lt.2 Tipe 1',80.00,'m¹','','U6'],
   ['A17','Panjang','Panjang Balok Lt.2 Tipe 2',0,'m¹','','U14'],
   ['A18','Panjang','Panjang Balok Lt.2 Tipe 3',0,'m¹','','U15'],
@@ -451,15 +528,20 @@ const AC_DEF=[
   ['A26','Talang','Panjang Balok Talang Tipe 1',0,'m¹','','U22'],
   ['A27','Talang','Panjang Balok Talang Tipe 2',0,'m¹','','U23'],
   ['A8','Luas','Luas Tapak / Lantai Dasar',100.00,'m²'],
-  ['A9','Luas','Luas Pelat Lantai 2',95.20,'m²'],
+  ['A9','Luas','Luas Pelat Lantai 2 (dak, void dikurangi)',85.00,'m²'],
   ['A10','Luas','Luas Atap (dari tabel Atap)',0,'m²','atap'],
-  ['A11','Luas','Luas Kamar (seluruhnya)',133.60,'m²'],
-  ['A12','Luas','Luas Teras / Selasar / Balkon',31.20,'m²'],
+  ['A11','Luas','Luas Kamar (seluruhnya)',110.22,'m²'],
+  ['A12','Luas','Luas Teras / Selasar / Balkon',34.70,'m²'],
   ['A15','Luas','Luas Penampang Strauss Ø30 (π × 0,15²)',0.0707,'m²'],
+  ['A30','Jumlah','Jumlah Kamar',10,'bh'],
+  ['A31','Jumlah','Jumlah Kamar Mandi',10,'bh'],
+  ['A32','Jumlah','Jumlah Titik Kolom Struktur / Strauss / Plat Sepatu',22,'ttk'],
+  ['A33','Jumlah','Jumlah Titik Lampu Area Umum',8,'ttk'],
+  ['A34','Panjang','Keliling Dalam 1 Kamar Mandi',5.00,'m¹'],
   ['A13','Pengurangan','Dinding Luar Tanpa Finishing — Lantai 1',0,'m¹','','U8'],
   ['A14','Pengurangan','Dinding Luar Tanpa Finishing — Lantai 2',0,'m¹','','U9'],
 ];
-const GRUPAC=['Panjang','Luas','Talang','Pengurangan','Lainnya'];
+const GRUPAC=['Jumlah','Panjang','Luas','Talang','Pengurangan','Lainnya'];
 const acuanDefault=()=>AC_DEF.map(([id,grup,nama,v,sat,auto,uk])=>({id,grup,nama,v,sat,auto:auto||'',uk:uk||''}));
 const atapDefault=()=>[{id:'T1',nama:'Bidang atap utama',p:10,l:10,deg:35}];
 const sudutOk=d=>{d=Number(d); return isFinite(d)&&d>=0&&d<85;};
@@ -487,7 +569,7 @@ function dariTemplate(){
   const bab=T.map(([kode,judul,items])=>({id:uid('b'),kode,judul,
     items:items.map(([nama,sat,harga,komp])=>({id:uid('i'),nama,sat,harga,volManual:'',
       komp:komp.map(k=>({ket:k[0],s:k[1],n:k[2],p:k[3],l:k[4],t:k[5],
-        ref:k[6]||'',uk:k[7]||'',ac:k[8]||'',uk2:k[9]||''}))}))}));
+        ref:k[6]||'',uk:k[7]||'',ac:k[8]||'',uk2:k[9]||'',nAc:k[10]||''}))}))}));
   const peta={}; bab.forEach(b=>b.items.forEach((it,i)=>peta[b.kode+'/'+i]=it.id));
   bab.forEach(b=>b.items.forEach(it=>it.komp.forEach(k=>{if(k.ref)k.ref=peta[k.ref]||'';})));
   return bab;
@@ -496,8 +578,32 @@ function proyekBaru(nama,kosong){
   return {nama:nama||'Proyek Baru',
     info:{namaProyek:nama||'Proyek Baru',lokasi:'',nomor:'',owner:'',pelaksana:'',kota:'Surabaya',
           tanggal:new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})},
-    ukuran: ukuranDefault(), acuan: acuanDefault(), atap: atapDefault(),
+    ukuran: ukuranDefault(), acuan: acuanDefault(), atap: atapDefault(), gambar: [],
     bab: kosong? [{id:uid('b'),kode:'I',judul:'PEK. PERSIAPAN',items:[]}] : dariTemplate()};
+}
+/* ---- pemutakhiran proyek lama ke aturan baru (versi 2026-11-04-2) ---- */
+const AC_LAMA={A2:86.80,A3:91.60,A4:40.00,A5:40.00,A7:7.00,A21:7.00,A22:7.00,A9:95.20,A11:133.60,A12:31.20};
+function migrasi(pr){
+  if(pr.rev2) return;                        // sudah pernah dimutakhirkan
+  pr.acuan=pr.acuan||[]; const def=acuanDefault(), ada={};
+  pr.acuan.forEach(a=>ada[a.id]=a);
+  def.forEach((a,i)=>{ if(!ada[a.id]) pr.acuan.splice(Math.min(i,pr.acuan.length),0,JSON.parse(JSON.stringify(a))); });
+  def.forEach(d=>{ const a=pr.acuan.find(x=>x.id===d.id);
+    if(a && AC_LAMA[d.id]!==undefined && Number(a.v)===AC_LAMA[d.id]){ a.v=d.v; a.nama=d.nama; } });
+  (pr.bab||[]).forEach(b=>(b.items||[]).forEach(it=>{
+    const k=it.komp||[];
+    if(/^Pas\. Plafon Gypsum/.test(it.nama) && k.length===2 && /^kamar 4,00/.test(k[0].ket||''))
+      it.komp=[{ket:'seluruh luas kamar',s:1,n:1,p:'',l:'',t:'',ref:'',uk:'',ac:'A11',uk2:'',nAc:''}];
+    if(/^Pek\. Keramik Dinding KM/.test(it.nama) && k.length===1 && /keliling 5,20/.test(k[0].ket||''))
+      it.komp=[{ket:'jumlah KM × keliling KM × tinggi keramik',s:1,n:10,p:'',l:'',t:'',
+                ref:'',uk:'U10',ac:'A34',uk2:'',nAc:'A31'}];
+  }));
+  const peta={}; dariTemplate().forEach(b=>(b.items||[]).forEach(it=>(it.komp||[]).forEach(k=>{
+    if(k.nAc) peta[it.nama+'||'+(k.ket||'')]={nAc:k.nAc,n:k.n}; })));
+  (pr.bab||[]).forEach(b=>(b.items||[]).forEach(it=>(it.komp||[]).forEach(k=>{
+    const t=peta[it.nama+'||'+(k.ket||'')];
+    if(t && !k.nAc && (Number(k.n)===Number(t.n)||Number(k.n)===16||Number(k.n)===10)) k.nAc=t.nAc; })));
+  pr.rev2=1;
 }
 function load(){
   try{const r=localStorage.getItem(LS); if(r) DB=JSON.parse(r);}catch(e){}
@@ -509,10 +615,16 @@ function load(){
   Object.values(DB.proyek).forEach(pr=>{
     if(!pr.ukuran||!pr.ukuran.length) pr.ukuran=ukuranDefault();
     if(!pr.acuan ||!pr.acuan.length ) pr.acuan =acuanDefault();
-    if(!pr.atap  ||!pr.atap.length  ) pr.atap  =atapDefault(); });
+    if(!pr.atap  ||!pr.atap.length  ) pr.atap  =atapDefault();
+    if(!Array.isArray(pr.gambar)) pr.gambar=[];
+    try{migrasi(pr);}catch(e){console.warn('migrasi dilewati',e);} });
   if(!DB.proyek[DB.aktif]) DB.aktif=Object.keys(DB.proyek)[0];
 }
-const save=()=>{try{localStorage.setItem(LS,JSON.stringify(DB));}catch(e){}};
+const save=()=>{try{localStorage.setItem(LS,JSON.stringify(DB));return true;}
+  catch(e){ try{toast('Penyimpanan peramban PENUH — hapus sebagian gambar denah lalu ulangi');}catch(x){}
+    return false; }};
+const besarSimpanan=()=>{try{return (localStorage.getItem(LS)||'').length;}catch(e){return 0;}};
+const tulisMB=b=>b>=1048576? (b/1048576).toFixed(1)+' MB' : Math.round(b/1024)+' KB';
 const P=()=>DB.proyek[DB.aktif];
 
 /* =================== HITUNG =================== */
@@ -549,12 +661,14 @@ function volSemua(){
     const u=k.uk? ukById(k.uk):null, a=k.ac? acById(k.ac):null;
     const isiAda=v=>!(v===''||v===null||v===undefined);
     const u2=k.uk2? ukById(k.uk2):null;
+    const an=k.nAc? acById(k.nAc):null;
     const Pj=(a&&isiAda(nilaiAc(a)))? nilaiAc(a) : k.p;
+    const Bn=(an&&isiAda(nilaiAc(an)))? nilaiAc(an) : k.n;
     let L =(u&&isiAda(u.b))? u.b : k.l;
     let Tg=(u&&isiAda(u.h))? u.h : k.t;
     if(u2&&isiAda(u2.b)) L=u2.b;
     if(u2&&isiAda(u2.h)) Tg=u2.h;
-    const f=[k.n,Pj,L,Tg].map(nz).filter(v=>v!==null);
+    const f=[Bn,Pj,L,Tg].map(nz).filter(v=>v!==null);
     let d=1, ada=false;
     if(k.ref){ d=vol(k.ref,jejak||new Set()); ada=true; }
     if(f.length){ f.forEach(v=>d*=v); ada=true; }
@@ -572,15 +686,16 @@ function hitung(){
         manual:(it.volManual!==''&&it.volManual!=null),
         rumus:(it.komp||[]).map(k=>{
           const u=k.uk? ukById(k.uk):null, a=k.ac? acById(k.ac):null, u2=k.uk2? ukById(k.uk2):null;
+          const an=k.nAc? acById(k.nAc):null;
           const ok=v=>!(v===''||v===null||v===undefined);
           let LL=(u&&ok(u.b))?u.b:k.l, TT=(u&&ok(u.h))?u.h:k.t;
           if(u2&&ok(u2.b)) LL=u2.b;
           if(u2&&ok(u2.h)) TT=u2.h;
-          const f=[k.n,((a&&ok(nilaiAc(a)))?nilaiAc(a):k.p),LL,TT]
+          const f=[((an&&ok(nilaiAc(an)))?nilaiAc(an):k.n),((a&&ok(nilaiAc(a)))?nilaiAc(a):k.p),LL,TT]
                   .map(nz).filter(x=>x!==null)
                   .map(x=>x.toLocaleString('id-ID',{maximumFractionDigits:4}));
           const d=k.ref? ('['+((peta[k.ref]||{}).nama||'?')+']') : '';
-          const tag=[a?a.nama:'',u?`${u.nama} ${labelUk(u)}`:'',
+          const tag=[an?an.nama:'',a?a.nama:'',u?`${u.nama} ${labelUk(u)}`:'',
                      u2?`ganti → ${u2.nama} ${labelUk(u2)}`:''].filter(Boolean).join(' · ');
           const isi=[d].concat(f).filter(Boolean).join(' × ')+(tag?` <span style="opacity:.72">[${tag}]</span>`:'');
           const tg=k.s<0?'i':'b';
@@ -634,6 +749,13 @@ function opsiAc(terpilih){
     o+='</optgroup>';});
   return o;
 }
+function opsiAcN(terpilih){
+  let o=`<option value="">— ketik sendiri —</option>`;
+  (P().acuan||[]).filter(a=>(a.grup||'')==='Jumlah').forEach(a=>{
+    o+=`<option value="${a.id}"${a.id===terpilih?' selected':''}>${a.nama} · ${
+      Number(nilaiAc(a)||0).toLocaleString('id-ID',{maximumFractionDigits:2})}</option>`;});
+  return o;
+}
 function opsiUk2(terpilih){
   let o=`<option value="">— tanpa pengganti —</option>`;
   GRUP.forEach(g=>{
@@ -667,13 +789,14 @@ function barisUraian(it){
   let h=`<table class="ur"><thead><tr>
     <th style="width:34px">±</th><th>Uraian</th><th style="width:160px">Acuan (dari denah)</th>
     <th style="width:150px">Ukuran</th><th style="width:140px">Ambil dari</th>
-    <th class="num" style="width:62px">banyak</th><th class="num" style="width:84px">panjang</th>
+    <th class="num" style="width:104px">banyak</th><th class="num" style="width:84px">panjang</th>
     <th class="num" style="width:84px">lebar</th><th class="num" style="width:84px">tinggi</th>
     <th class="num" style="width:92px">hasil</th><th style="width:30px"></th></tr></thead><tbody>`;
   (it.komp||[]).forEach((k,i)=>{
     const v=V.nilai(k), uu=k.uk? ukById(k.uk):null, aa=k.ac? acById(k.ac):null;
     const isi=x=>!(x===''||x===null||x===undefined);
     const u2=k.uk2? ukById(k.uk2):null;
+    const an=k.nAc? acById(k.nAc):null; const adaN=an&&isi(nilaiAc(an));
     let adaB=uu&&isi(uu.b), adaH=uu&&isi(uu.h); const adaA=aa&&isi(aa.v);
     let valB=adaB?uu.b:k.l, valH=adaH?uu.h:k.t;
     if(u2&&isi(u2.b)){adaB=true; valB=u2.b;}
@@ -686,7 +809,9 @@ function barisUraian(it){
         (k.uk||k.uk2)? `<div style="margin-top:3px"><select data-f="uk2" style="max-width:160px;font-size:11px"
           title="Ukuran pengganti — menimpa lebar/tinggi dari ukuran utama">${opsiUk2(k.uk2)}</select></div>`:''}</td>
       <td><select data-f="ref">${opsiItem(it.id,k.ref)}</select></td>
-      <td><input class="d" type="text" inputmode="decimal" data-f="n" value="${tulis(k.n)}"></td>
+      <td><input class="d" type="text" inputmode="decimal" data-f="n" value="${adaN?tulis(nilaiAc(an)):tulis(k.n)}"${adaN?' readonly style="opacity:.6"':''}>
+        <div style="margin-top:3px"><select data-f="nAc" style="width:100px;max-width:100px;font-size:10.5px"
+          title="Ambil angka 'banyak' dari Daftar Angka Acuan">${opsiAcN(k.nAc)}</select></div></td>
       <td><input class="d" type="text" inputmode="decimal" data-f="p" value="${adaA?tulis(aa.v):tulis(k.p)}"${adaA?' readonly style="opacity:.6"':''}></td>
       <td><input class="d" type="text" inputmode="decimal" data-f="l" value="${tulis(valB)}"${adaB?' readonly style="opacity:.6"':''}></td>
       <td><input class="d" type="text" inputmode="decimal" data-f="t" value="${tulis(valH)}"${adaH?' readonly style="opacity:.6"':''}></td>
@@ -717,7 +842,7 @@ function barisUraian(it){
     const i=+row.dataset.k;
     row.querySelectorAll('input,select').forEach(el=>el.addEventListener('change',()=>{
       const f=el.dataset.f;
-      it.komp[i][f]=(f==='ket'||f==='ref'||f==='uk'||f==='uk2'||f==='ac')? el.value : num(el.value);
+      it.komp[i][f]=(f==='ket'||f==='ref'||f==='uk'||f==='uk2'||f==='ac'||f==='nAc')? el.value : num(el.value);
       save(); render();
     }));
     row.querySelector('[data-act="sgn"]').addEventListener('click',()=>{
@@ -872,7 +997,8 @@ function renderAcuan(){
   const tb=document.getElementById('tbAc'); tb.innerHTML='';
   const pakai={};
   P().bab.forEach(b=>b.items.forEach(it=>(it.komp||[]).forEach(k=>{
-    if(k.ac) pakai[k.ac]=(pakai[k.ac]||0)+1;})));
+    if(k.ac) pakai[k.ac]=(pakai[k.ac]||0)+1;
+    if(k.nAc) pakai[k.nAc]=(pakai[k.nAc]||0)+1;})));
   const urut=(P().acuan||[]).map((a,i)=>({a,i}))
     .sort((x,y)=>{const gx=GRUPAC.indexOf(x.a.grup||'Lainnya'), gy=GRUPAC.indexOf(y.a.grup||'Lainnya');
       return (gx<0?9:gx)-(gy<0?9:gy) || x.i-y.i;});
@@ -955,6 +1081,136 @@ function renderUkuran(){
     P().ukuran.splice(i,1); save(); render();
   }));
 }
+/* =================== DENAH & GAMBAR KERJA =================== */
+const MAKS_PX=1400, MUTU=0.75;
+function kecilkanGambar(file){
+  return new Promise((ok,gagal)=>{
+    const r=new FileReader();
+    r.onerror=()=>gagal(new Error('gagal membaca berkas'));
+    r.onload=()=>{
+      const im=new Image();
+      im.onerror=()=>gagal(new Error('bukan gambar yang bisa dibaca'));
+      im.onload=()=>{
+        let {width:w,height:h}=im;
+        const sk=Math.min(1, MAKS_PX/Math.max(w,h));
+        w=Math.round(w*sk); h=Math.round(h*sk);
+        const c=document.createElement('canvas'); c.width=w; c.height=h;
+        const x=c.getContext('2d');
+        x.fillStyle='#fff'; x.fillRect(0,0,w,h); x.drawImage(im,0,0,w,h);
+        ok({data:c.toDataURL('image/jpeg',MUTU), lebar:w, tinggi:h});
+      };
+      im.src=r.result;
+    };
+    r.readAsDataURL(file);
+  });
+}
+function bacaMentah(file){
+  return new Promise((ok,gagal)=>{const r=new FileReader();
+    r.onerror=()=>gagal(new Error('gagal membaca berkas'));
+    r.onload=()=>ok(r.result); r.readAsDataURL(file);});
+}
+const besarData=d=>Math.round((String(d).length-(String(d).indexOf(',')+1))*0.75);
+async function tambahGambar(files){
+  const pr=P(); let masuk=0;
+  for(const f of files){
+    try{
+      let g;
+      if(/^image\//.test(f.type)){
+        const r=await kecilkanGambar(f);
+        g={id:uid('g'),nama:f.name,tipe:'gambar',data:r.data,ket:'',w:r.lebar,h:r.tinggi};
+      }else if(f.type==='application/pdf'||/\.pdf$/i.test(f.name)){
+        if(f.size>2*1024*1024){ toast('PDF "'+f.name+'" terlalu besar ('+tulisMB(f.size)+') — maksimal 2 MB'); continue; }
+        g={id:uid('g'),nama:f.name,tipe:'pdf',data:await bacaMentah(f),ket:''};
+      }else{ toast('Jenis berkas "'+f.name+'" tidak didukung'); continue; }
+      const simpanan=JSON.parse(JSON.stringify(pr.gambar));
+      pr.gambar.push(g);
+      if(!save()){ pr.gambar=simpanan; save(); break; }
+      masuk++;
+    }catch(e){ toast('Gagal memuat "'+f.name+'"'); }
+  }
+  renderGambar(); renderDaftarProyek();
+  if(masuk) toast(masuk+' gambar ditambahkan');
+}
+function bukaBlob(g){
+  const b=atob(g.data.slice(g.data.indexOf(',')+1));
+  const u=new Uint8Array(b.length); for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);
+  const url=URL.createObjectURL(new Blob([u],{type:g.tipe==='pdf'?'application/pdf':'image/jpeg'}));
+  window.open(url,'_blank'); setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+function renderGambar(){
+  const w=document.getElementById('gridGbr'), pr=P(); if(!w) return;
+  const gb=pr.gambar||[];
+  let tot=0; gb.forEach(g=>tot+=besarData(g.data));
+  document.getElementById('infoGbr').textContent =
+    gb.length? `— ${gb.length} berkas · ${tulisMB(tot)}` : '— belum ada gambar';
+  if(!gb.length){
+    w.innerHTML=`<div class="note" style="grid-column:1/-1;padding:16px;text-align:center">
+      Belum ada denah. Tekan <b>+ Tambah Gambar</b> lalu pilih foto atau hasil pindai denah.</div>`;
+    return;
+  }
+  w.innerHTML=gb.map((g,i)=>`<div class="gbrK">
+    <div class="gbrT" data-lihat="${i}">${g.tipe==='pdf'
+      ? '<span class="pdf">PDF</span>'
+      : `<img src="${g.data}" alt="">`}</div>
+    <div class="ket"><input type="text" data-ket="${i}" placeholder="keterangan"
+      value="${(g.ket||'').replace(/"/g,'&quot;')}"></div>
+    <div class="bar"><button class="mini" data-buka="${i}">Buka</button>
+      <button class="mini" data-gdel="${i}">Hapus</button></div></div>`).join('');
+  w.querySelectorAll('[data-lihat]').forEach(e=>e.addEventListener('click',()=>{
+    const g=gb[+e.dataset.lihat];
+    if(g.tipe==='pdf'){bukaBlob(g);return;}
+    document.getElementById('lboxImg').src=g.data;
+    document.getElementById('lbox').classList.add('on');}));
+  w.querySelectorAll('[data-buka]').forEach(e=>e.addEventListener('click',()=>bukaBlob(gb[+e.dataset.buka])));
+  w.querySelectorAll('[data-ket]').forEach(e=>e.addEventListener('input',()=>{
+    gb[+e.dataset.ket].ket=e.value; save();}));
+  w.querySelectorAll('[data-gdel]').forEach(e=>e.addEventListener('click',()=>{
+    const i=+e.dataset.gdel; if(!confirm('Hapus gambar "'+(gb[i].nama||'')+'"?'))return;
+    gb.splice(i,1); save(); renderGambar(); renderDaftarProyek(); toast('Gambar dihapus');}));
+}
+
+/* =================== DAFTAR PROYEK =================== */
+function totalProyek(id){
+  const simpan=DB.aktif; DB.aktif=id;
+  let t=0; try{ hitung().forEach(b=>t+=b.sub); }catch(e){ t=0; }
+  DB.aktif=simpan; return t;
+}
+function renderDaftarProyek(){
+  const tb=document.getElementById('tbProyek'); if(!tb) return;
+  tb.innerHTML='';
+  Object.entries(DB.proyek).forEach(([id,p])=>{
+    const tr=document.createElement('tr');
+    if(id===DB.aktif) tr.style.background='var(--warn)';
+    const ng=(p.gambar||[]).length;
+    tr.innerHTML=`<td><b>${(p.nama||'(tanpa nama)')}</b>${id===DB.aktif?' <span style="color:var(--accent);font-size:11px">• dibuka</span>':''}</td>
+      <td style="font-size:12px;color:var(--muted)">${(p.info&&p.info.lokasi)||'—'}</td>
+      <td class="c">${ng?ng+' berkas':'—'}</td>
+      <td class="num">${Math.round(totalProyek(id)).toLocaleString('id-ID')}</td>
+      <td class="c noprint">
+        <button class="mini" data-pbuka="${id}">Buka</button>
+        <button class="mini" data-pnama="${id}">Ganti Nama</button>
+        <button class="mini" data-pdel="${id}">Hapus</button></td>`;
+    tb.appendChild(tr);
+  });
+  document.getElementById('infoSimpanan').textContent='terpakai '+tulisMB(besarSimpanan());
+  tb.querySelectorAll('[data-pbuka]').forEach(b=>b.addEventListener('click',()=>{
+    DB.aktif=b.dataset.pbuka; buka=null; save();
+    renderProyek(); renderIdent(); renderGambar(); renderDaftarProyek(); render();
+    toast('Proyek dibuka'); window.scrollTo({top:0,behavior:'smooth'});}));
+  tb.querySelectorAll('[data-pnama]').forEach(b=>b.addEventListener('click',()=>{
+    const p=DB.proyek[b.dataset.pnama];
+    const nm=prompt('Nama proyek:',p.nama); if(!nm)return;
+    p.nama=nm; p.info.namaProyek=nm; save();
+    renderProyek(); renderIdent(); renderDaftarProyek(); toast('Nama diganti');}));
+  tb.querySelectorAll('[data-pdel]').forEach(b=>b.addEventListener('click',()=>{
+    const id=b.dataset.pdel;
+    if(Object.keys(DB.proyek).length<2){toast('Minimal satu proyek');return;}
+    if(!confirm('Hapus proyek "'+DB.proyek[id].nama+'" beserta gambarnya?'))return;
+    delete DB.proyek[id];
+    if(DB.aktif===id){DB.aktif=Object.keys(DB.proyek)[0]; buka=null;}
+    save(); renderProyek(); renderIdent(); renderGambar(); renderDaftarProyek(); render();
+    toast('Proyek dihapus');}));
+}
 function renderProyek(){
   const s=document.getElementById('proyek'); s.innerHTML='';
   Object.entries(DB.proyek).forEach(([id,p])=>{
@@ -965,69 +1221,92 @@ function renderProyek(){
 /* =================== EKSPOR =================== */
 const strip=s=>String(s).replace(/<[^>]*>/g,'');
 function tabelHTML(){
-  const pr=P(), inf=pr.info, data=hitung(), ur=document.getElementById('cbUraian').checked,
-        nol=document.getElementById('cbNol').checked;
+  /* Keluaran Excel — mengikuti bentuk berkas RAB milik user:
+     judul, tabel per bab dengan nomor urut yang dimulai lagi tiap bab,
+     rekapitulasi, terbilang, tanda tangan, catatan.
+     RINCIAN / URAIAN VOLUME TIDAK IKUT. */
+  const pr=P(), inf=pr.info, data=hitung();
+  const nol=document.getElementById('cbNol').checked;
   let grand=0; data.forEach(b=>grand+=b.sub);
-  const K=(t,n)=>`<td colspan="${n||1}">${t}</td>`;
-  let h='<table border="1" cellspacing="0" cellpadding="5" style="font-family:Arial">';
-  h+=`<tr><td colspan="6" align="center" style="font-size:15pt;font-weight:bold">RENCANA ANGGARAN BIAYA</td></tr>`;
-  h+=`<tr><td colspan="6" align="center" style="font-size:12pt;font-weight:bold">${inf.namaProyek||pr.nama}</td></tr>`;
-  h+=`<tr><td colspan="6" align="center">${inf.lokasi||''}</td></tr><tr><td colspan="6"></td></tr>`;
-  if(inf.nomor) h+=`<tr>${K('Nomor',1)}${K(': '+inf.nomor,5)}</tr>`;
-  if(inf.owner) h+=`<tr>${K('Pemilik',1)}${K(': '+inf.owner,5)}</tr>`;
-  if(inf.pelaksana) h+=`<tr>${K('Pelaksana',1)}${K(': '+inf.pelaksana,5)}</tr>`;
-  h+=`<tr><td colspan="6"></td></tr>`;
-  h+=`<tr style="background:#1F3864;color:#fff;font-weight:bold"><td>No</td><td>Jenis Pekerjaan</td>`+
-     `<td>Volume</td><td>Sat</td><td>Harga Satuan (Rp)</td><td>Jumlah Harga (Rp)</td></tr>`;
+  const F2="mso-number-format:'\\#\\,\\#\\#0\\.00'";
+  const F0="mso-number-format:'\\#\\,\\#\\#0'";
+  const GRS='border:.5pt solid #808080';
+  const kosong=k=>`<tr><td colspan="6" style="height:16px"></td></tr>`;
+  let h='<table cellspacing="0" cellpadding="3" style="font-family:Arial;font-size:11pt">';
+  h+='<colgroup><col width="58"><col width="360"><col width="110">'+
+     '<col width="72"><col width="104"><col width="128"></colgroup>';
+  h+=`<tr><td colspan="6" align="center" style="font-size:14pt;font-weight:bold">`+
+     `RAB ${(inf.namaProyek||pr.nama||'').toUpperCase()}</td></tr>`;
+  if(inf.lokasi) h+=`<tr><td colspan="6" align="center" style="font-size:11pt">${inf.lokasi}</td></tr>`;
+  if(inf.nomor)  h+=`<tr><td colspan="6" align="center" style="font-size:10pt">Nomor: ${inf.nomor}</td></tr>`;
+  h+=kosong();
+  h+=`<tr style="font-weight:bold;background:#DDEBF7">`+
+     `<td align="center" style="${GRS}">No</td><td align="center" style="${GRS}">Jenis Pekerjaan</td>`+
+     `<td align="center" style="${GRS}">Volume</td><td align="center" style="${GRS}">Sat Vol</td>`+
+     `<td align="center" style="${GRS}">Harga (Rp)</td><td align="center" style="${GRS}">Jmlh Harga (Rp)</td></tr>`;
   data.forEach(b=>{
-    h+=`<tr style="background:#FFF2CC;font-weight:bold"><td>${b.kode}</td><td colspan="5">${b.judul}</td></tr>`;
+    h+=`<tr style="font-weight:bold"><td align="center" style="${GRS}">${b.kode}</td>`+
+       `<td colspan="5" style="${GRS}">${b.judul}</td></tr>`;
+    let no=0;
     b.items.forEach(it=>{
       if(nol && !it.vol) return;
-      h+=`<tr><td align="center">${it.no}</td><td>${namaTampil(it.ref)}</td>`+
-         `<td align="right">${it.vol?it.vol.toFixed(2):''}</td><td align="center">${it.ref.sat||''}</td>`+
-         `<td align="right">${it.hrg||''}</td><td align="right">${it.jml?Math.round(it.jml):''}</td></tr>`;
-      if(ur&&it.rumus&&!it.manual)
-        h+=`<tr><td></td><td style="font-size:8pt;font-style:italic;color:#666">`+
-           `${strip(it.rumus.replace(/<br>/g,'  ;  '))}</td><td colspan="4"></td></tr>`;
+      no++;
+      h+=`<tr><td align="center" style="${GRS}">${no}</td>`+
+         `<td style="${GRS}">${namaTampil(it.ref)}</td>`+
+         `<td align="center" style="${GRS};${F2}">${it.vol?it.vol.toFixed(2):''}</td>`+
+         `<td align="center" style="${GRS}">${it.ref.sat||''}</td>`+
+         `<td align="right" style="${GRS};${F0}">${it.hrg||''}</td>`+
+         `<td align="right" style="${GRS};${F0}">${it.jml?Math.round(it.jml):''}</td></tr>`;
     });
-    h+=`<tr style="font-weight:bold"><td></td><td colspan="4" align="right">Jumlah ${b.judul}</td>`+
-       `<td align="right">${Math.round(b.sub)}</td></tr>`;
+    h+=`<tr style="font-weight:bold"><td style="${GRS}"></td>`+
+       `<td colspan="4" align="right" style="${GRS}">Jumlah ${b.judul}</td>`+
+       `<td align="right" style="${GRS};${F0}">${Math.round(b.sub)}</td></tr>`;
+    h+=kosong();
   });
-  h+=`<tr><td colspan="6"></td></tr>`;
-  h+=`<tr style="background:#1F3864;color:#fff;font-weight:bold"><td colspan="6">REKAPITULASI</td></tr>`;
-  data.forEach(b=>{ h+=`<tr><td align="center">${b.kode}</td><td colspan="4">${b.judul}</td>`+
-    `<td align="right">${Math.round(b.sub)}</td></tr>`; });
-  h+=`<tr style="background:#FFF2CC;font-weight:bold"><td colspan="5" align="right">JUMLAH TOTAL</td>`+
-     `<td align="right">${Math.round(grand)}</td></tr>`;
-  h+=`<tr><td colspan="6"><i>Terbilang: ${terbilang(grand).replace(/\s+/g,' ').trim()} Rupiah</i></td></tr>`;
-  h+=`<tr><td colspan="6"></td></tr>`;
-  h+=`<tr><td colspan="6"><b>Catatan:</b> harga di atas belum termasuk IMB/PBG, meteran listrik PLN, `+
-     `meteran air PDAM, dan pekerjaan di luar rincian ini.</td></tr>`;
-  h+=`<tr><td colspan="6"></td></tr>`;
-  h+=`<tr><td colspan="6" align="right">${inf.kota||''}${inf.kota?', ':''}${inf.tanggal||''}</td></tr>`;
+  h+=`<tr style="font-weight:bold;font-size:12pt"><td colspan="6">REKAPITULASI</td></tr>`;
+  data.forEach(b=>{
+    h+=`<tr><td align="center" style="${GRS}">${b.kode}</td>`+
+       `<td colspan="4" style="${GRS}">${b.judul}</td>`+
+       `<td align="right" style="${GRS};${F0}">${Math.round(b.sub)}</td></tr>`;});
+  h+=`<tr style="font-weight:bold;background:#FFF2CC">`+
+     `<td style="${GRS}"></td><td colspan="4" align="right" style="${GRS}">JUMLAH</td>`+
+     `<td align="right" style="${GRS};${F0}">${Math.round(grand)}</td></tr>`;
+  h+=`<tr><td colspan="2"><b>Terbilang:</b></td>`+
+     `<td colspan="4"><i>${terbilang(grand).replace(/\s+/g,' ').trim()} Rupiah</i></td></tr>`;
+  h+=kosong();
+  h+=`<tr><td colspan="4"></td><td colspan="2" align="center">`+
+     `${inf.kota||''}${inf.kota?', ':''}${inf.tanggal||''}</td></tr>`;
   h+=`<tr><td colspan="3" align="center"><b>PIHAK PERTAMA — Pemilik</b></td>`+
      `<td colspan="3" align="center"><b>PIHAK KEDUA — Pelaksana</b></td></tr>`;
-  h+=`<tr><td colspan="3" height="70"></td><td colspan="3"></td></tr>`;
-  h+=`<tr><td colspan="3" align="center">${inf.owner||'(........................)'}</td>`+
-     `<td colspan="3" align="center">${inf.pelaksana||'(........................)'}</td></tr>`;
+  h+=`<tr><td colspan="6" style="height:62px"></td></tr>`;
+  h+=`<tr><td colspan="3" align="center">${inf.owner||'(.............................)'}</td>`+
+     `<td colspan="3" align="center">${inf.pelaksana||'(.............................)'}</td></tr>`;
+  h+=kosong();
+  h+=`<tr><td colspan="6"><b>Catatan :</b></td></tr>`;
+  h+=`<tr><td colspan="6">Harga tersebut di atas TIDAK termasuk:</td></tr>`;
+  ['IMB / PBG','Meteran listrik PLN','Meteran air PDAM',
+   'Pekerjaan di luar item di atas — bisa diatur kemudian'].forEach(x=>{
+    h+=`<tr><td></td><td colspan="5">* ${x}</td></tr>`;});
   h+='</table>';
   return h;
 }
 function tabelTSV(){
-  const data=hitung(), ur=document.getElementById('cbUraian').checked,
-        nol=document.getElementById('cbNol').checked, L=[];
-  L.push(['No','Jenis Pekerjaan','Volume','Sat','Harga (Rp)','Jumlah Harga (Rp)'].join('\t'));
+  const data=hitung(), nol=document.getElementById('cbNol').checked, L=[];
+  L.push(['No','Jenis Pekerjaan','Volume','Sat Vol','Harga (Rp)','Jmlh Harga (Rp)'].join('\t'));
   data.forEach(b=>{
     L.push([b.kode,b.judul,'','','',''].join('\t'));
+    let no=0;
     b.items.forEach(it=>{
-      if(nol && !it.vol) return;
-      L.push([it.no,namaTampil(it.ref),it.vol?it.vol.toFixed(2):'',it.ref.sat||'',it.hrg||'',
+      if(nol && !it.vol) return; no++;
+      L.push([no,namaTampil(it.ref),it.vol?it.vol.toFixed(2):'',it.ref.sat||'',it.hrg||'',
               it.jml?Math.round(it.jml):''].join('\t'));
-      if(ur&&it.rumus&&!it.manual)
-        L.push(['',strip(it.rumus.replace(/<br>/g,'  ;  ')),'','','',''].join('\t'));
     });
     L.push(['','Jumlah '+b.judul,'','','',Math.round(b.sub)].join('\t'));
   });
+  let g=0; data.forEach(b=>g+=b.sub);
+  L.push(''); L.push('REKAPITULASI');
+  data.forEach(b=>L.push([b.kode,b.judul,'','','',Math.round(b.sub)].join('\t')));
+  L.push(['','JUMLAH','','','',Math.round(g)].join('\t'));
   return L.join('\n');
 }
 const toast=m=>{const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');
@@ -1038,27 +1317,43 @@ function unduh(nama,isi,tipe){
 
 /* =================== EVENT =================== */
 document.getElementById('proyek').addEventListener('change',e=>{
-  DB.aktif=e.target.value; buka=null; save(); renderIdent(); render();});
+  DB.aktif=e.target.value; buka=null; save();
+  renderIdent(); renderGambar(); renderDaftarProyek(); render();});
+document.getElementById('bDaftar').addEventListener('click',()=>{
+  const c=document.getElementById('cDaftar');
+  const tampil=(c.style.display==='none');
+  c.style.display=tampil?'':'none';
+  if(tampil){ renderDaftarProyek(); c.scrollIntoView({behavior:'smooth',block:'start'}); }});
+document.getElementById('bGbrAdd').addEventListener('click',()=>document.getElementById('fGbr').click());
+document.getElementById('fGbr').addEventListener('change',e=>{
+  const f=[...e.target.files]; e.target.value='';
+  if(f.length) tambahGambar(f);});
+document.getElementById('lboxTutup').addEventListener('click',()=>
+  document.getElementById('lbox').classList.remove('on'));
+document.getElementById('lbox').addEventListener('click',e=>{
+  if(e.target.id!=='lboxImg') document.getElementById('lbox').classList.remove('on');});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape')
+  document.getElementById('lbox').classList.remove('on');});
 document.getElementById('bBaru').addEventListener('click',()=>{
   const n=prompt('Nama proyek baru (pakai cetakan kost 2 lantai):','Proyek Baru'); if(!n)return;
   const id=uid('p'); DB.proyek[id]=proyekBaru(n); DB.aktif=id; buka=null;
-  save(); renderProyek(); renderIdent(); render(); toast('Dibuat dari cetakan');});
+  save(); renderProyek(); renderIdent(); renderGambar(); renderDaftarProyek(); render(); toast('Dibuat dari cetakan');});
 document.getElementById('bKosong').addEventListener('click',()=>{
   const n=prompt('Nama proyek baru (mulai dari kosong):','Proyek Kosong'); if(!n)return;
   const id=uid('p'); DB.proyek[id]=proyekBaru(n,true); DB.aktif=id; buka=null;
-  save(); renderProyek(); renderIdent(); render(); toast('Proyek kosong dibuat');});
+  save(); renderProyek(); renderIdent(); renderGambar(); renderDaftarProyek(); render(); toast('Proyek kosong dibuat');});
 document.getElementById('bSalin').addEventListener('click',()=>{
   const n=prompt('Nama salinan:',P().nama+' (salinan)'); if(!n)return;
   const id=uid('p'), c=JSON.parse(JSON.stringify(P())), peta={};
   c.bab.forEach(b=>{b.id=uid('b');b.items.forEach(it=>{const ni=uid('i');peta[it.id]=ni;it.id=ni;});});
   c.bab.forEach(b=>b.items.forEach(it=>it.komp.forEach(k=>{if(k.ref&&peta[k.ref])k.ref=peta[k.ref];})));
   c.nama=n; c.info.namaProyek=n; DB.proyek[id]=c; DB.aktif=id; buka=null;
-  save(); renderProyek(); renderIdent(); render(); toast('Disalin');});
+  save(); renderProyek(); renderIdent(); renderGambar(); renderDaftarProyek(); render(); toast('Disalin');});
 document.getElementById('bHapus').addEventListener('click',()=>{
   if(Object.keys(DB.proyek).length<2){toast('Minimal satu proyek');return;}
   if(!confirm('Hapus proyek "'+P().nama+'"?'))return;
   delete DB.proyek[DB.aktif]; DB.aktif=Object.keys(DB.proyek)[0]; buka=null;
-  save(); renderProyek(); renderIdent(); render(); toast('Dihapus');});
+  save(); renderProyek(); renderIdent(); renderGambar(); renderDaftarProyek(); render(); toast('Dihapus');});
 document.getElementById('bAtapAdd').addEventListener('click',()=>{
   const n=prompt('Nama bidang atap:','Bidang atap teras'); if(!n)return;
   P().atap.push({id:uid('T'),nama:n,p:0,l:0,deg:35}); save(); render();
@@ -1082,7 +1377,7 @@ document.getElementById('bXls').addEventListener('click',()=>{
   const nm=(P().info.namaProyek||P().nama).replace(/[^\w\s-]/g,'').trim().replace(/\s+/g,'-')||'proyek';
   unduh('RAB-'+nm+'.xls','﻿<html><head><meta charset="utf-8"></head><body>'+tabelHTML()+'</body></html>',
         'application/vnd.ms-excel;charset=utf-8');
-  toast('Excel diunduh — tinggal dibuka lalu dicetak');});
+  toast('Excel diunduh — tanpa rincian, siap dicetak');});
 document.getElementById('bCopy').addEventListener('click',async()=>{
   const t=tabelTSV();
   try{await navigator.clipboard.writeText(t); toast('Tersalin — tempel (Ctrl+V) di Excel');}
@@ -1098,17 +1393,17 @@ document.getElementById('fImp').addEventListener('change',e=>{
   r.onload=()=>{try{const d=JSON.parse(r.result); if(!d.proyek) throw 0;
       Object.assign(DB.proyek,d.proyek);
       DB.aktif=(d.aktif&&DB.proyek[d.aktif])?d.aktif:DB.aktif; buka=null;
-      save(); renderProyek(); renderIdent(); render(); toast('Cadangan dipulihkan');
+      save(); renderProyek(); renderIdent(); renderGambar(); renderDaftarProyek(); render(); toast('Cadangan dipulihkan');
     }catch(x){toast('Berkas cadangan tidak dikenali');}};
   r.readAsText(f); e.target.value='';});
 
 /* =================== MULAI =================== */
-const VERSI_APP='2026-11-04-1';     // <-- NAIKKAN bersamaan dengan VERSI di sw.js
+const VERSI_APP='2026-11-05-1';     // <-- NAIKKAN bersamaan dengan VERSI di sw.js
 document.getElementById('versiApp').textContent='versi '+VERSI_APP;
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 }
-load(); renderProyek(); renderIdent(); render();
+load(); renderProyek(); renderIdent(); renderGambar(); renderDaftarProyek(); render();
 </script>
 </body>
 </html>
